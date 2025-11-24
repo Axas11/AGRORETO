@@ -1,0 +1,18 @@
+# Ignora el entorno virtual de Python
+venv/
+
+# Archivos de configuración de Python y cachés
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de SQLite (si quieres ignorar los datos generados)
+*.db
+
+# Archivos de configuración de entorno
+.env
+.DS_Store
+
+# Archivos y carpetas de VSCode
+.vscode/
