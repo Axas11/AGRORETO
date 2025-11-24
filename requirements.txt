@@ -1,0 +1,8 @@
+reflex
+fastapi
+uvicorn
+sqlmodel
+requests
+pydantic
+pytest
+httpx
