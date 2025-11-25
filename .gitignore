@@ -19,7 +19,7 @@ venv/
 .env
 .DS_Store
 alembic.ini
-
+InstruccionesEjecutar.txt
 # VSCode config
 .vscode/
 
