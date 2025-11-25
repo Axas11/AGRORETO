@@ -1,12 +1,15 @@
 # app/states/sensor_state.py
-import reflex as rx
-import logging
 import json
+import logging
 from datetime import datetime
-from sqlmodel import select, Session
-from app.models import Sensor, Parcel, SensorData, Alert
-from app.utils import engine
+
+import reflex as rx
+from sqlmodel import Session, select
+
+from app.models import Alert, Parcel, Sensor, SensorData
 from app.services.maiota_client import maiota_client
+from app.utils import engine
+
 
 class SensorState(rx.State):
     sensors: list[dict] = []

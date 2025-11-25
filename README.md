@@ -317,7 +317,10 @@ Este proyecto está bajo la Licencia MIT.
 
 **Equipo Agrotech - Reto MAIoTA**
 
-- GitHub: [@Axas11](https://github.com/Axas11)
+- GitHub: [@Francisco Jose Rodriguez Guerra](https://github.com/Axas11)
+- GitHub: [@Rafael Ballesteros Padial](https://github.com/GomasDev)
+- GitHUb: [@Victor Alvarez Cabrera](https://github.com/VictorAlvarezCabrera)
+- GitHub: [@Fernando Mansilla Hidalgo  ](https://github.com/Fermh97)
 - Proyecto: [AGRORETO](https://github.com/Axas11/AGRORETO)
 
 ---

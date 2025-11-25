@@ -257,6 +257,7 @@ app.add_page(
     route="/dashboard",
     title="Dashboard - Agrotech",
     on_load=[
+        AuthState.check_authentication,
         AuthState.ensure_db_seeded,
         DashboardState.load_dashboard_stats,
         DashboardState.start_polling,
@@ -266,23 +267,31 @@ app.add_page(
     parcels_page,
     route="/parcels",
     title="Parcels - Agrotech",
-    on_load=[AuthState.ensure_db_seeded, ParcelState.load_parcels],
+    on_load=[AuthState.check_authentication,
+             AuthState.ensure_db_seeded,
+               ParcelState.load_parcels],
 )
 app.add_page(
     parcel_detail_page,
     route="/parcels/[id]",
     title="Parcel Detail - Agrotech",
-    on_load=[AuthState.ensure_db_seeded, SensorState.load_sensors],
+    on_load=[AuthState.check_authentication,
+             AuthState.ensure_db_seeded,
+               SensorState.load_sensors],
 )
 app.add_page(
     sensor_detail_page,
     route="/sensors/[id]",
     title="Sensor Analysis - Agrotech",
-    on_load=[AuthState.ensure_db_seeded, SensorHistoryState.load_history],
+    on_load=[AuthState.check_authentication,
+             AuthState.ensure_db_seeded, 
+             SensorHistoryState.load_history],
 )
 app.add_page(
     alerts_page,
     route="/alerts",
     title="Alerts - Agrotech",
-    on_load=[AuthState.ensure_db_seeded, AlertState.load_alerts],
+    on_load=[AuthState.check_authentication,
+             AuthState.ensure_db_seeded, 
+             AlertState.load_alerts],
 )

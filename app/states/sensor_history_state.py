@@ -1,8 +1,10 @@
-import reflex as rx
 import logging
 from datetime import datetime, timedelta
-from sqlmodel import select, Session
-from app.models import Sensor, SensorData, Parcel
+
+import reflex as rx
+from sqlmodel import Session, select
+
+from app.models import Parcel, Sensor, SensorData
 from app.utils import engine
 
 

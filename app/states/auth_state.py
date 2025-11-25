@@ -43,7 +43,7 @@ class AuthState(rx.State):
                     self.user_name = user.username
                     self.is_loading = False
                     self.password = ""
-                    return rx.redirect("/")
+                    return rx.redirect("/dashboard")  # ← CAMBIO AQUÍ
                 else:
                     self.is_loading = False
                     self.error_message = "Invalid username or password."
@@ -63,6 +63,12 @@ class AuthState(rx.State):
     def ensure_db_seeded(self):
         """Called on app load to ensure DB has data."""
         seed_database()
+    
+    @rx.event
+    def check_authentication(self):
+        """Verifica autenticación antes de acceder a páginas protegidas"""
+        if not self.is_authenticated:
+            return rx.redirect("/login") 
 
     @rx.var
     def is_authenticated(self) -> bool:
@@ -75,5 +81,3 @@ class AuthState(rx.State):
     @rx.var
     def is_technician(self) -> bool:
         return self.user_role == "technician"
-    
-    
