@@ -1,26 +1,29 @@
-.states
+# Byte-compiled / optimized / DLL files
+__pycache__/
 *.py[cod]
-assets/external/
-__pycache__/
-.web
-*.db
-
-
-# Ignora el entorno virtual de Python
-venv/
-
-# Archivos de configuración de Python y cachés
-__pycache__/
-*.pyc
 *.pyo
 *.pyd
 
-# Archivos de SQLite (si quieres ignorar los datos generados)
+# Caches and state
 *.db
+*.sqlite3
+.web/
+states/
+assets/external/
 
-# Archivos de configuración de entorno
+# Entorno virtual (este es importante que SI lo ignores)
+venv/
+.env
+
+# Configuraciones y archivos secretos
 .env
 .DS_Store
+alembic.ini
 
-# Archivos y carpetas de VSCode
+# VSCode config
 .vscode/
+
+# Otros backup o temporales
+*.log
+*.bak
+*.swp
