@@ -1,11 +1,12 @@
 #app/services/maiota_client.py
-import paho.mqtt.client as mqtt
-import threading
-from datetime import datetime
-import re
 import json
 import logging
-from typing import Dict, Callable
+import re
+import threading
+from datetime import datetime
+from typing import Callable, Dict
+
+import paho.mqtt.client as mqtt
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,7 @@ class MAIoTAMultiSensorClient:
     """Cliente MQTT para gestionar múltiples sensores MAIoTA del Reto Agrotech"""
     
     def __init__(self):
-        self.client_id = "Equipo 3"
+        self.client_id = "Equipo 4"
         self.broker = "broker.emqx.io"
         self.port = 1883
         

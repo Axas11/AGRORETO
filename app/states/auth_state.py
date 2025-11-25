@@ -1,8 +1,10 @@
+import asyncio
+
 import reflex as rx
 from sqlmodel import select
+
 from app.models import User
-from app.utils import verify_password, seed_database
-import asyncio
+from app.utils import seed_database, verify_password
 
 
 class AuthState(rx.State):
@@ -73,3 +75,5 @@ class AuthState(rx.State):
     @rx.var
     def is_technician(self) -> bool:
         return self.user_role == "technician"
+    
+    

@@ -1,27 +1,28 @@
 # app/app.py
-import reflex as rx
+import json
 import logging
-from sqlmodel import select, Session
-from app.states.auth_state import AuthState
-from app.states.parcel_state import ParcelState
-from app.states.sensor_state import SensorState
-from app.states.dashboard_state import DashboardState
-from app.states.sensor_history_state import SensorHistoryState
-from app.states.alert_state import AlertState
-from app.components.login_form import login_form
-from app.pages.dashboard import dashboard
-from app.pages.parcels import parcels_page
-from app.pages.parcel_detail import parcel_detail_page
-from app.pages.sensor_detail import sensor_detail_page
-from app.pages.alerts import alerts_page
-from app.api.routes import router as api_router
+from datetime import datetime
 
+import reflex as rx
+from sqlmodel import Session, select
+
+from app.api.routes import router as api_router
+from app.components.login_form import login_form
+from app.models import Alert, Sensor, SensorData
+from app.pages.alerts import alerts_page
+from app.pages.dashboard import dashboard
+from app.pages.parcel_detail import parcel_detail_page
+from app.pages.parcels import parcels_page
+from app.pages.sensor_detail import sensor_detail_page
 # Importar MQTT y modelos
 from app.services.maiota_client import maiota_client
-from app.models import Sensor, SensorData, Alert
+from app.states.alert_state import AlertState
+from app.states.auth_state import AuthState
+from app.states.dashboard_state import DashboardState
+from app.states.parcel_state import ParcelState
+from app.states.sensor_history_state import SensorHistoryState
+from app.states.sensor_state import SensorState
 from app.utils import engine
-import json
-from datetime import datetime
 
 logging.basicConfig(
     level=logging.INFO,
@@ -174,8 +175,7 @@ def load_existing_sensors():
     except Exception as e:
         logger.exception(f"❌ Error cargando sensores existentes: {e}")
 
-    except Exception as e:
-        logger.exception(f"❌ Error cargando sensores existentes: {e}")
+    
 
 
 def login_page() -> rx.Component:
@@ -188,14 +188,27 @@ def dashboard_page() -> rx.Component:
 
 def index() -> rx.Component:
     """Redirect root to dashboard (which will redirect to login if needed)."""
-    return rx.el.div(rx.script("window.location.href = '/dashboard'"))
+    return rx.el.div(rx.script("window.location.href = '/login'"))
 
 
 def api_routes(api_app):
+    """Registra las rutas de la API REST"""
+    # Registrar cada ruta del router
     for route in api_router.routes:
-        path = f"{api_router.prefix}{route.path}"
-        api_app.add_route(path, route.endpoint, methods=route.methods)
+        # Construir la ruta completa
+        path = route.path
+        if not path.startswith(api_router.prefix):
+            path = f"{api_router.prefix}{path}"
+        
+        # Añadir la ruta
+        api_app.add_route(
+            path,
+            route.endpoint,
+            methods=list(route.methods) if route.methods else ["GET"]
+        )
+    
     return api_app
+
 
 
 # ==================== INICIALIZACIÓN MQTT ====================
@@ -207,6 +220,7 @@ maiota_client.start()
 
 # Esperar conexión
 import time
+
 time.sleep(2)
 
 # Cargar sensores existentes
@@ -219,6 +233,7 @@ logger.info("✅ Sistema de monitoreo MAIoTA iniciado")
 
 app = rx.App(
     theme=rx.theme(appearance="light"),
+    api_transformer=api_routes,
     head_components=[
         rx.el.link(rel="preconnect", href="https://fonts.googleapis.com"),
         rx.el.link(rel="preconnect", href="https://fonts.gstatic.com", cross_origin=""),
@@ -227,7 +242,7 @@ app = rx.App(
             rel="stylesheet",
         ),
     ],
-    api_transformer=api_routes,
+    
 )
 
 app.add_page(index, route="/")
