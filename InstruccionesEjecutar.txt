@@ -1,0 +1,7 @@
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+python -m reflex run
+python -m reflex db init
+python -m reflex db makemigrations
+python -m reflex db migrate
