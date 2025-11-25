@@ -1,20 +1,39 @@
+# app/states/sensor_state.py
 import reflex as rx
 import logging
+import json
+from datetime import datetime
 from sqlmodel import select, Session
-from app.models import Sensor, Parcel
+from app.models import Sensor, Parcel, SensorData, Alert
 from app.utils import engine
-
+from app.services.maiota_client import maiota_client
 
 class SensorState(rx.State):
     sensors: list[dict] = []
     current_parcel: Parcel | None = None
     show_add_sensor_modal: bool = False
+    
+    # Campos del formulario (existentes)
     new_sensor_code: str = ""
     new_sensor_type: str = "temperature"
     new_sensor_unit: str = "°C"
     new_sensor_desc: str = ""
     new_sensor_low: float = 0.0
     new_sensor_high: float = 100.0
+    
+    # Nuevo campo para MQTT
+    new_sensor_mqtt_topic: str = "Awi7LJfyyn6LPjg/15046220"
+    
+    # Mapeo de tipos de sensor MAIoTA
+    maiota_type_map = {
+        "temperature": "temperatura",
+        "humidity_ambient": "humedad_ambiente",
+        "humidity_soil": "humedad_suelo",
+        "luminosity": "iluminacion",
+        "co2": "co2",
+        "cov": "cov",
+        "nox": "nox"
+    }
 
     @rx.var
     def parcel_name(self) -> str:
@@ -53,6 +72,8 @@ class SensorState(rx.State):
     @rx.event
     def toggle_add_modal(self):
         self.show_add_sensor_modal = not self.show_add_sensor_modal
+        if not self.show_add_sensor_modal:
+            self._reset_form()
 
     @rx.event
     def set_sensor_code(self, val: str):
@@ -67,6 +88,10 @@ class SensorState(rx.State):
             self.new_sensor_unit = "%"
         elif "luminosity" in val:
             self.new_sensor_unit = "lux"
+        elif val == "co2":
+            self.new_sensor_unit = "ppm"
+        elif val in ["cov", "nox"]:
+            self.new_sensor_unit = "Index"
 
     @rx.event
     def set_sensor_unit(self, val: str):
@@ -89,31 +114,164 @@ class SensorState(rx.State):
             self.new_sensor_high = float(val)
         except ValueError as e:
             logging.exception(f"Error parsing sensor high threshold: {e}")
+    
+    @rx.event
+    def set_sensor_mqtt_topic(self, val: str):
+        """Nuevo método para configurar el topic MQTT"""
+        self.new_sensor_mqtt_topic = val
 
     @rx.event
     def add_sensor(self):
+        """Crea sensor y lo registra en MQTT"""
         if not self.current_parcel:
+            logging.error("No hay parcela seleccionada")
             return
-        with Session(engine) as session:
-            new_sensor = Sensor(
-                id_code=self.new_sensor_code,
-                parcel_id=self.current_parcel.id,
-                type=self.new_sensor_type,
-                unit=self.new_sensor_unit,
-                description=self.new_sensor_desc,
-                threshold_low=self.new_sensor_low,
-                threshold_high=self.new_sensor_high,
-            )
-            session.add(new_sensor)
-            session.commit()
+        
+        try:
+            with Session(engine) as session:
+                new_sensor = Sensor(
+                    id_code=self.new_sensor_code,
+                    parcel_id=self.current_parcel.id,
+                    type=self.new_sensor_type,
+                    unit=self.new_sensor_unit,
+                    description=self.new_sensor_desc,
+                    threshold_low=self.new_sensor_low,
+                    threshold_high=self.new_sensor_high,
+                    mqtt_topic=self.new_sensor_mqtt_topic,  # Nuevo campo
+                    active=True
+                )
+                session.add(new_sensor)
+                session.commit()
+                session.refresh(new_sensor)
+                
+                # Registrar en MQTT
+                self._register_sensor_mqtt(new_sensor)
+                
+                logging.info(f"✓ Sensor {new_sensor.id_code} creado con ID {new_sensor.id}")
+        
+        except Exception as e:
+            logging.exception(f"Error creando sensor: {e}")
+        
         self.toggle_add_modal()
         self.load_sensors()
 
+    def _reset_form(self):
+        """Limpia el formulario"""
+        self.new_sensor_code = ""
+        self.new_sensor_type = "temperature"
+        self.new_sensor_unit = "°C"
+        self.new_sensor_desc = ""
+        self.new_sensor_low = 0.0
+        self.new_sensor_high = 100.0
+        self.new_sensor_mqtt_topic = "Awi7LJfyyn6LPjg/15046220"
+
+    def _register_sensor_mqtt(self, sensor: Sensor):
+        """Registra el sensor en el cliente MQTT"""
+        
+        # Obtener el tipo MAIoTA correspondiente
+        maiota_type = self.maiota_type_map.get(sensor.type, "temperatura")
+        
+        def on_sensor_data(data: dict):
+            """Callback cuando llegan datos del sensor"""
+            self._save_sensor_reading(sensor.id, maiota_type, data)
+            self._check_thresholds(sensor, maiota_type, data)
+        
+        maiota_client.add_sensor(
+            sensor_id=sensor.id,
+            sensor_code=sensor.id_code,
+            sensor_type=maiota_type,
+            topic=sensor.mqtt_topic,
+            callback=on_sensor_data
+        )
+        
+        logging.info(f"✓ Sensor {sensor.id_code} registrado en MQTT topic {sensor.mqtt_topic}")
+
+    def _save_sensor_reading(self, sensor_id: int, sensor_type: str, data: dict):
+        """Guarda lectura en la base de datos"""
+        try:
+            with Session(engine) as session:
+                # Extraer valor según el tipo de sensor
+                value = data.get(sensor_type, 0.0)
+                
+                # Convertir datetime a string para JSON
+                data_for_json = data.copy()
+                if 'timestamp' in data_for_json:
+                    if isinstance(data_for_json['timestamp'], datetime):
+                        data_for_json['timestamp'] = data_for_json['timestamp'].isoformat()
+                
+                reading = SensorData(
+                    sensor_id=sensor_id,
+                    timestamp=data.get('timestamp', datetime.utcnow()),
+                    value=float(value),
+                    raw=data.get('raw_payload', json.dumps(data_for_json))  # ← Usa data_for_json
+                )
+                
+                session.add(reading)
+                session.commit()
+                
+                logging.debug(f"💾 Lectura guardada: Sensor {sensor_id} = {value}")
+                
+        except Exception as e:
+            logging.exception(f"Error guardando lectura: {e}")
+
+    def _check_thresholds(self, sensor: Sensor, sensor_type: str, data: dict):
+        """Verifica umbrales y crea alertas si es necesario"""
+        value = data.get(sensor_type, 0.0)
+        
+        alert_type = None
+        alert_message = None
+        
+        if value < sensor.threshold_low:
+            alert_type = "low"
+            alert_message = (
+                f"⚠️ {sensor.id_code}: {sensor_type} bajo el mínimo. "
+                f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_low})"
+            )
+        elif value > sensor.threshold_high:
+            alert_type = "high"
+            alert_message = (
+                f"⚠️ {sensor.id_code}: {sensor_type} sobre el máximo. "
+                f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_high})"
+            )
+        
+        if alert_type and alert_message:
+            self._create_alert(sensor.id, alert_type, alert_message)
+
+    def _create_alert(self, sensor_id: int, alert_type: str, message: str):
+        """Crea una alerta en la base de datos"""
+        try:
+            with Session(engine) as session:
+                alert = Alert(
+                    sensor_id=sensor_id,
+                    timestamp=datetime.utcnow(),
+                    type=alert_type,
+                    message=message,
+                    acknowledged=False
+                )
+                
+                session.add(alert)
+                session.commit()
+                
+                logging.warning(f"🚨 ALERTA: {message}")
+                
+        except Exception as e:
+            logging.exception(f"Error creando alerta: {e}")
+
     @rx.event
     def delete_sensor(self, sensor_id: int):
-        with Session(engine) as session:
-            sensor = session.get(Sensor, sensor_id)
-            if sensor:
-                session.delete(sensor)
-                session.commit()
-        self.load_sensors()
+        """Elimina sensor y lo desregistra del MQTT"""
+        try:
+            with Session(engine) as session:
+                sensor = session.get(Sensor, sensor_id)
+                if sensor:
+                    # Desregistrar de MQTT antes de eliminar
+                    maiota_client.remove_sensor(sensor.mqtt_topic)
+                    logging.info(f"✓ Sensor {sensor.id_code} desvinculado de MQTT")
+                    
+                    session.delete(sensor)
+                    session.commit()
+            
+            self.load_sensors()
+            
+        except Exception as e:
+            logging.exception(f"Error eliminando sensor: {e}")

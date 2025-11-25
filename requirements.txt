@@ -6,3 +6,4 @@ sqlmodel
 bcrypt
 bcrypt==4.0.1
 reflex==0.8.21
+paho-mqtt==1.6.1

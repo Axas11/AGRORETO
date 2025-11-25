@@ -1,3 +1,4 @@
+# app/pages/parcel_detail.py
 import reflex as rx
 from app.states.auth_state import AuthState
 from app.states.sensor_state import SensorState
@@ -52,11 +53,14 @@ def sensor_card(sensor: dict) -> rx.Component:
 
 
 def add_sensor_modal() -> rx.Component:
+    """Modal mejorado con campo MQTT Topic"""
     return rx.cond(
         SensorState.show_add_sensor_modal,
         rx.el.div(
             rx.el.div(
                 rx.el.h3("Add Sensor", class_name="text-xl font-bold mb-4"),
+                
+                # ID Code
                 rx.el.div(
                     rx.el.label(
                         "ID Code",
@@ -64,11 +68,14 @@ def add_sensor_modal() -> rx.Component:
                     ),
                     rx.el.input(
                         placeholder="e.g. S-TEMP-005",
+                        value=SensorState.new_sensor_code,
                         class_name=M3Styles.INPUT_FIELD,
                         on_change=SensorState.set_sensor_code,
                     ),
                     class_name="mb-4",
                 ),
+                
+                # Type
                 rx.el.div(
                     rx.el.label(
                         "Type",
@@ -76,14 +83,20 @@ def add_sensor_modal() -> rx.Component:
                     ),
                     rx.el.select(
                         rx.el.option("Temperature", value="temperature"),
-                        rx.el.option("Soil Humidity", value="soil_humidity"),
-                        rx.el.option("Ambient Humidity", value="ambient_humidity"),
+                        rx.el.option("Soil Humidity", value="humidity_soil"),
+                        rx.el.option("Ambient Humidity", value="humidity_ambient"),
                         rx.el.option("Luminosity", value="luminosity"),
+                        rx.el.option("CO2", value="co2"),
+                        rx.el.option("COV", value="cov"),
+                        rx.el.option("NOx", value="nox"),
                         class_name=M3Styles.INPUT_FIELD,
+                        value=SensorState.new_sensor_type,
                         on_change=SensorState.set_sensor_type,
                     ),
                     class_name="mb-4",
                 ),
+                
+                # Description
                 rx.el.div(
                     rx.el.label(
                         "Description",
@@ -91,11 +104,33 @@ def add_sensor_modal() -> rx.Component:
                     ),
                     rx.el.input(
                         placeholder="Location description",
+                        value=SensorState.new_sensor_desc,
                         class_name=M3Styles.INPUT_FIELD,
                         on_change=SensorState.set_sensor_desc,
                     ),
                     class_name="mb-4",
                 ),
+                
+                # MQTT Topic (NUEVO)
+                rx.el.div(
+                    rx.el.label(
+                        "MQTT Topic",
+                        class_name="text-sm font-medium text-slate-700 mb-1 block",
+                    ),
+                    rx.el.input(
+                        placeholder="Awi7LJfyyn6LPjg/15046220",
+                        value=SensorState.new_sensor_mqtt_topic,
+                        class_name=M3Styles.INPUT_FIELD,
+                        on_change=SensorState.set_sensor_mqtt_topic,
+                    ),
+                    rx.el.p(
+                        "Topic del sensor MAIoTA en EMQX broker",
+                        class_name="text-xs text-slate-400 mt-1"
+                    ),
+                    class_name="mb-4",
+                ),
+                
+                # Thresholds
                 rx.el.div(
                     rx.el.div(
                         rx.el.label(
@@ -105,6 +140,7 @@ def add_sensor_modal() -> rx.Component:
                         rx.el.input(
                             type="number",
                             placeholder="0.0",
+                            value=SensorState.new_sensor_low,
                             class_name=M3Styles.INPUT_FIELD,
                             on_change=SensorState.set_sensor_low,
                         ),
@@ -118,6 +154,7 @@ def add_sensor_modal() -> rx.Component:
                         rx.el.input(
                             type="number",
                             placeholder="100.0",
+                            value=SensorState.new_sensor_high,
                             class_name=M3Styles.INPUT_FIELD,
                             on_change=SensorState.set_sensor_high,
                         ),
@@ -125,6 +162,8 @@ def add_sensor_modal() -> rx.Component:
                     ),
                     class_name="flex gap-4 mb-6",
                 ),
+                
+                # Botones
                 rx.el.div(
                     rx.el.button(
                         "Cancel",
@@ -146,60 +185,70 @@ def add_sensor_modal() -> rx.Component:
 
 
 def parcel_detail_page() -> rx.Component:
+    """Página principal de detalle de parcela con sensores"""
     return rx.el.div(
         navbar(),
         rx.el.main(
             rx.el.div(
+                # Breadcrumb
+                rx.el.a(
+                    rx.icon("arrow-left", class_name="w-4 h-4 mr-1"),
+                    "Back to Parcels",
+                    href="/parcels",
+                    class_name="flex items-center text-slate-500 hover:text-blue-600 mb-4 text-sm",
+                ),
+                
+                # Header con info de parcela
                 rx.el.div(
                     rx.el.div(
-                        rx.el.a(
-                            rx.icon("arrow-left", class_name="w-4 h-4 mr-1"),
-                            "Back to Parcels",
-                            href="/parcels",
-                            class_name="flex items-center text-slate-500 hover:text-blue-600 mb-4 text-sm",
-                        ),
                         rx.el.h1(
                             SensorState.parcel_name,
                             class_name=f"text-2xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",
                         ),
                         rx.el.p(
-                            SensorState.parcel_location, class_name="text-slate-500"
+                            SensorState.parcel_location,
+                            class_name="text-slate-500",
                         ),
                     ),
                     rx.cond(
                         AuthState.is_farmer,
                         rx.el.button(
-                            rx.icon("plus", class_name="w-5 h-5 mr-2"),
+                            rx.icon("plus", class_name="w-4 h-4 mr-1"),
                             "Add Sensor",
                             on_click=SensorState.toggle_add_modal,
-                            class_name=f"{M3Styles.BUTTON_PRIMARY} py-2 px-4 text-sm",
+                            class_name=f"{M3Styles.BUTTON_PRIMARY} flex items-center",
                         ),
                     ),
-                    class_name="flex justify-between items-end mb-8",
+                    class_name="flex justify-between items-start mb-8",
                 ),
+                
+                # Grid de sensores
                 rx.cond(
                     SensorState.sensors.length() > 0,
                     rx.el.div(
-                        rx.foreach(SensorState.sensors, sensor_card),
-                        class_name="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6",
+                        rx.foreach(
+                            SensorState.sensors,
+                            sensor_card,
+                        ),
+                        class_name="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
                     ),
                     rx.el.div(
-                        rx.icon("sprout", class_name="w-16 h-16 text-slate-200 mb-4"),
-                        rx.el.h3(
-                            "No Sensors Yet",
-                            class_name="text-lg font-medium text-slate-600",
-                        ),
+                        rx.icon("inbox", class_name="w-12 h-12 text-slate-300 mb-2"),
                         rx.el.p(
-                            "Add sensors to start monitoring this parcel.",
-                            class_name="text-slate-500",
+                            "No sensors yet",
+                            class_name="text-slate-400 text-sm",
                         ),
-                        class_name="flex flex-col items-center justify-center py-12 bg-white rounded-2xl border border-slate-100 border-dashed",
+                        class_name="flex flex-col items-center justify-center py-16",
                     ),
                 ),
-                add_sensor_modal(),
+                
                 class_name="max-w-7xl mx-auto px-4 py-8",
             ),
             class_name="bg-slate-50 min-h-[calc(100vh-64px)]",
         ),
+        
+        # Modal
+        add_sensor_modal(),
+        
         class_name=f"min-h-screen w-full {M3Styles.FONT_FAMILY}",
     )
