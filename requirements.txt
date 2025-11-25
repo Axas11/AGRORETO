@@ -1,8 +1,8 @@
-reflex
 fastapi
-uvicorn
-sqlmodel
+reflex
 requests
-pydantic
-pytest
-httpx
+passlib
+sqlmodel
+bcrypt
+bcrypt==4.0.1
+reflex==0.8.21

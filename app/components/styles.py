@@ -1,0 +1,28 @@
+import reflex as rx
+
+
+class M3Styles:
+    PRIMARY = "bg-blue-600"
+    ON_PRIMARY = "text-white"
+    PRIMARY_CONTAINER = "bg-blue-100"
+    ON_PRIMARY_CONTAINER = "text-blue-900"
+    SECONDARY = "bg-slate-600"
+    ON_SECONDARY = "text-white"
+    SECONDARY_CONTAINER = "bg-slate-100"
+    SURFACE = "bg-white"
+    SURFACE_VARIANT = "bg-slate-50"
+    ERROR = "bg-red-500"
+    ON_ERROR = "text-white"
+    FONT_FAMILY = "font-['Montserrat']"
+    ROUNDED_XS = "rounded-sm"
+    ROUNDED_SM = "rounded-md"
+    ROUNDED_MD = "rounded-lg"
+    ROUNDED_LG = "rounded-xl"
+    ROUNDED_XL = "rounded-2xl"
+    ROUNDED_FULL = "rounded-full"
+    ELEVATION_1 = "shadow-sm"
+    ELEVATION_2 = "shadow-md"
+    ELEVATION_3 = "shadow-lg"
+    INPUT_FIELD = f"w-full px-4 py-3 {SURFACE_VARIANT} border-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all duration-200 {ROUNDED_MD} text-slate-800 placeholder-slate-400"
+    BUTTON_PRIMARY = f"{PRIMARY} {ON_PRIMARY} {ROUNDED_FULL} px-8 py-3 font-medium hover:shadow-lg hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
+    CARD = f"{SURFACE} {ROUNDED_XL} {ELEVATION_1} p-6 border border-slate-100"
