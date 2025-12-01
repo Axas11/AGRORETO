@@ -30,7 +30,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
 def save_sensor_reading_direct(sensor_id: int, sensor_type: str, data: dict):
     """Guarda lectura directamente en BD sin usar State"""
     try:
@@ -245,13 +244,20 @@ app = rx.App(
     
 )
 
-app.add_page(index, route="/")
 app.add_page(
     login_page,
     route="/login",
     title="Login - Agrotech",
     on_load=AuthState.ensure_db_seeded,
 )
+
+app.add_page(
+    login_page,
+    route="/",  
+    title="Login - Agrotech",
+    on_load=AuthState.ensure_db_seeded,
+)
+
 app.add_page(
     dashboard_page,
     route="/dashboard",

@@ -1,8 +1,7 @@
-import reflex as rx
 from passlib.context import CryptContext
-from sqlmodel import select, create_engine, SQLModel, Session
-from app.models import User, Parcel, Sensor, SensorData, Alert
-import datetime
+from sqlmodel import Session, SQLModel, create_engine, select
+
+from app.models import Alert, Parcel, Sensor, SensorData, User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 DATABASE_URL = "sqlite:///reflex.db"
