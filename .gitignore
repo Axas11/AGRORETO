@@ -17,6 +17,8 @@ assets/external/
 venv/
 .env
 
+*.db
+
 # Configuraciones y archivos secretos
 .env
 .DS_Store
