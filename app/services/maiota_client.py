@@ -14,7 +14,7 @@ class MAIoTAMultiSensorClient:
     """Cliente MQTT para gestionar múltiples sensores MAIoTA del Reto Agrotech"""
     
     def __init__(self):
-        self.client_id = "Equipo 4"
+        self.client_id = "Equipo 3"
         self.broker = "broker.emqx.io"
         self.port = 1883
         

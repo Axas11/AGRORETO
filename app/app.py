@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 
 from app.api.routes import router as api_router
 from app.components.login_form import login_form
+from app.components.register_form import register_form
 from app.models import Alert, Sensor, SensorData
 from app.pages.alerts import alerts_page
 from app.pages.dashboard import dashboard
@@ -174,8 +175,10 @@ def load_existing_sensors():
     except Exception as e:
         logger.exception(f"❌ Error cargando sensores existentes: {e}")
 
-    
 
+#definir registro
+def register_page() -> rx.Component:
+    return register_form()
 
 def login_page() -> rx.Component:
     return login_form()
@@ -255,6 +258,14 @@ app.add_page(
     login_page,
     route="/",  
     title="Login - Agrotech",
+    on_load=AuthState.ensure_db_seeded,
+)
+
+#registro pagina
+app.add_page(
+    register_page,
+    route="/register",
+    title="Register - Agrotech",
     on_load=AuthState.ensure_db_seeded,
 )
 
