@@ -95,6 +95,18 @@ def login_form() -> rx.Component:
                 ),
                 class_name="mt-8 text-center w-full",
             ),
+            rx.el.div(
+                rx.el.p(
+                    "¿No tienes cuenta? ",
+                    rx.el.a(
+                        "Regístrate aquí",
+                        href="/register",
+                        class_name="text-blue-600 hover:text-blue-800 font-semibold",
+                    ),
+                    class_name="text-sm text-slate-600",
+                ),
+                class_name="mt-4 text-center w-full",
+            ),
             class_name=f"w-full max-w-md {M3Styles.CARD} {M3Styles.ELEVATION_3}",
         ),
         class_name="min-h-screen w-full flex items-center justify-center bg-slate-50 p-4 relative overflow-hidden",

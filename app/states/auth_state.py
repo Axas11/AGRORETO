@@ -11,6 +11,7 @@ class AuthState(rx.State):
     username: str = ""
     password: str = ""
     error_message: str = ""
+    success_message: str = ""
     is_loading: bool = False
     user_id: int | None = None
     user_role: str | None = None
@@ -48,6 +49,69 @@ class AuthState(rx.State):
                     self.is_loading = False
                     self.error_message = "Invalid username or password."
 
+    @rx.event(background=True)
+    async def register_user(self, form_data: dict):
+        """Registrar un nuevo usuario con rol 'tech' por defecto."""
+        async with self:
+            username = form_data.get("username", "").strip()
+            password = form_data.get("password", "")
+            confirm_password = form_data.get("confirm_password", "")
+            
+            self.error_message = ""
+            self.success_message = ""
+            
+            # Validaciones
+            if not username or not password or not confirm_password:
+                self.error_message = "Todos los campos son obligatorios."
+                return
+            
+            if len(username) < 3:
+                self.error_message = "El nombre de usuario debe tener al menos 3 caracteres."
+                return
+            
+            if len(password) < 6:
+                self.error_message = "La contraseña debe tener al menos 6 caracteres."
+                return
+            
+            if password != confirm_password:
+                self.error_message = "Las contraseñas no coinciden."
+                return
+            
+            self.is_loading = True
+        
+        await asyncio.sleep(0.5)
+        
+        async with self:
+            from app.utils import get_password_hash
+            
+            with rx.session() as session:
+                # Verificar si el usuario ya existe
+                existing_user = session.exec(
+                    select(User).where(User.username == username)
+                ).first()
+                
+                if existing_user:
+                    self.is_loading = False
+                    self.error_message = "El nombre de usuario ya está en uso."
+                    return
+                
+                # Crear nuevo usuario con rol 'technician'
+                new_user = User(
+                    username=username,
+                    password_hash=get_password_hash(password),
+                    role="technician"
+                )
+                
+                session.add(new_user)
+                session.commit()
+                session.refresh(new_user)
+                
+                self.is_loading = False
+                self.success_message = "¡Cuenta creada exitosamente! Redirigiendo al login..."
+                
+        await asyncio.sleep(1.5)
+        return rx.redirect("/login")
+
     @rx.event
     def logout(self):
         """Log the user out and clear session."""
@@ -57,6 +121,7 @@ class AuthState(rx.State):
         self.username = ""
         self.password = ""
         self.error_message = ""
+        self.success_message = ""
         return rx.redirect("/login")
 
     @rx.event
