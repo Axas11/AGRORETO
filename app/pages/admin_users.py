@@ -14,10 +14,6 @@ class AdminUserState(rx.State):
     all_users: list[dict] = []
     selected_tab: str = "pending"
     
-    def on_mount(self):
-        """Cargar datos al montar el componente"""
-        return AdminUserState.load_users
-    
     @rx.event(background=True)
     async def load_users(self):
         """Cargar usuarios pendientes y aprobados"""
@@ -66,12 +62,11 @@ class AdminUserState(rx.State):
                     session.add(user)
                     session.commit()
         
-        # Recargar usuarios
-        await self.load_users()
+        yield AdminUserState.load_users
     
     @rx.event(background=True)
     async def reject_user(self, user_id: int):
-        """Rechazar usuario (eliminar)"""
+        """Rechazar y eliminar usuario pendiente"""
         async with self:
             with rx.session() as session:
                 user = session.exec(
@@ -82,8 +77,34 @@ class AdminUserState(rx.State):
                     session.delete(user)
                     session.commit()
         
-        # Recargar usuarios
-        await self.load_users()
+        yield AdminUserState.load_users
+    
+    @rx.event(background=True)
+    async def delete_user(self, user_id: int):
+        """Eliminar usuario aprobado"""
+        async with self:
+            # ✅ Obtener el estado de AuthState correctamente
+            auth_state = await self.get_state(AuthState)
+            current_user_id = auth_state.user_id
+            
+            with rx.session() as session:
+                user = session.exec(
+                    select(User).where(User.id == user_id)
+                ).first()
+                
+                if user:
+                    # ✅ Evitar que el admin se elimine a sí mismo
+                    if user.id == current_user_id:
+                        return
+                    
+                    # ✅ No permitir eliminar usuarios con rol "farmer" (admin)
+                    if user.role == "farmer":
+                        return
+                    
+                    session.delete(user)
+                    session.commit()
+        
+        yield AdminUserState.load_users
 
 
 def pending_users_table() -> rx.Component:
@@ -123,13 +144,13 @@ def pending_users_table() -> rx.Component:
                                     rx.icon("check", class_name="w-4 h-4"),
                                     "Aprobar",
                                     on_click=lambda: AdminUserState.approve_user(user["id"]),
-                                    class_name=f"{M3Styles.BUTTON_PRIMARY} text-sm",
+                                    class_name="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all text-sm font-medium flex items-center gap-2",
                                 ),
                                 rx.button(
                                     rx.icon("x", class_name="w-4 h-4"),
                                     "Rechazar",
                                     on_click=lambda: AdminUserState.reject_user(user["id"]),
-                                    class_name=f"{M3Styles.BUTTON_SECONDARY} text-sm",
+                                    class_name="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all text-sm font-medium flex items-center gap-2",
                                 ),
                                 class_name="flex gap-2",
                             ),
@@ -182,6 +203,7 @@ def approved_users_table() -> rx.Component:
                             rx.el.th("Usuario", class_name="px-4 py-3 text-left text-sm font-semibold text-slate-700"),
                             rx.el.th("Rol", class_name="px-4 py-3 text-left text-sm font-semibold text-slate-700"),
                             rx.el.th("Registrado", class_name="px-4 py-3 text-left text-sm font-semibold text-slate-700"),
+                            rx.el.th("Acciones", class_name="px-4 py-3 text-left text-sm font-semibold text-slate-700"),
                             class_name="border-b border-slate-200",
                         ),
                     ),
@@ -201,6 +223,22 @@ def approved_users_table() -> rx.Component:
                                 class_name="px-4 py-3 text-sm",
                             ),
                             rx.el.td(user["created_at"], class_name="px-4 py-3 text-sm text-slate-600"),
+                            rx.el.td(
+                                # ✅ Mostrar botón de eliminar solo si NO es farmer (admin)
+                                rx.cond(
+                                    user["role"] != "farmer",
+                                    rx.button(
+                                        rx.icon("trash_2", class_name="w-4 h-4"),
+                                        on_click=lambda: AdminUserState.delete_user(user["id"]),
+                                        class_name="px-3 py-1.5 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-all text-sm font-medium flex items-center gap-1",
+                                    ),
+                                    rx.el.span(
+                                        "Protegido",
+                                        class_name="text-xs text-slate-400 italic",
+                                    ),
+                                ),
+                                class_name="px-4 py-3 text-sm",
+                            ),
                             class_name="border-b border-slate-100 hover:bg-slate-50",
                         ),
                     ),
@@ -230,7 +268,6 @@ def approved_users_table() -> rx.Component:
 def admin_users_page() -> rx.Component:
     """Página de administración de usuarios"""
     return rx.box(
-        # Verificar que sea admin/farmer
         rx.cond(
             AuthState.is_farmer,
             rx.box(
@@ -302,6 +339,5 @@ def admin_users_page() -> rx.Component:
             ),
         ),
         class_name="min-h-screen bg-slate-50",
-        # ✅ MOVIDO: on_load aquí en rx.box que sí lo soporta
         on_mount=AdminUserState.load_users,
     )
