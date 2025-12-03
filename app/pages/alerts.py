@@ -39,11 +39,11 @@ def alert_row(alert: dict) -> rx.Component:
             rx.cond(
                 alert["acknowledged"],
                 rx.el.span(
-                    "Acknowledged",
+                    "Confirmada",
                     class_name="text-xs font-bold text-green-600 bg-green-50 px-3 py-1 rounded-full",
                 ),
                 rx.el.button(
-                    "Acknowledge",
+                    "Confirmar",
                     on_click=lambda: AlertState.acknowledge_alert(alert["id"]),
                     class_name=f"{M3Styles.BUTTON_PRIMARY} py-1.5 px-4 text-xs shadow-none hover:shadow-md",
                 ),
@@ -62,11 +62,11 @@ def alerts_page() -> rx.Component:
                 rx.el.div(
                     rx.el.div(
                         rx.el.h1(
-                            "Alerts Management",
+                            "Gestión de Alertas",
                             class_name=f"text-2xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",
                         ),
                         rx.el.p(
-                            "Review and manage sensor notifications",
+                            "Revisa y gestiona las notificaciones de sensores",
                             class_name="text-slate-500",
                         ),
                     ),
@@ -74,7 +74,7 @@ def alerts_page() -> rx.Component:
                         (AlertState.alerts.length() > 0) & (AlertState.show_history == False),
                         rx.el.button(
                             rx.icon("check-check", class_name="w-4 h-4 mr-2"),
-                            "Acknowledge All",
+                            "Confirmar Todas",
                             on_click=AlertState.acknowledge_all_alerts,
                             class_name=f"{M3Styles.BUTTON_PRIMARY} text-sm py-2 px-4 flex items-center gap-2",
                         ),
@@ -84,9 +84,9 @@ def alerts_page() -> rx.Component:
                 rx.el.div(
                     rx.el.div(
                         rx.el.select(
-                            rx.el.option("All Types", value="all"),
-                            rx.el.option("High Value", value="HIGH"),
-                            rx.el.option("Low Value", value="LOW"),
+                            rx.el.option("Todos los Tipos", value="all"),
+                            rx.el.option("Valor Alto", value="HIGH"),
+                            rx.el.option("Valor Bajo", value="LOW"),
                             on_change=AlertState.set_filter_type,
                             class_name="bg-white border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5",
                         ),
@@ -98,7 +98,7 @@ def alerts_page() -> rx.Component:
                                     class_name="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500",
                                 ),
                                 rx.el.span(
-                                    "Show Acknowledged",
+                                    "Mostrar Confirmadas",
                                     class_name="ml-2 text-sm font-medium text-slate-700",
                                 ),
                                 class_name="flex items-center",
@@ -119,11 +119,11 @@ def alerts_page() -> rx.Component:
                                 class_name="w-16 h-16 text-green-200 mb-4",
                             ),
                             rx.el.h3(
-                                "No Alerts Found",
+                                "No se Encontraron Alertas",
                                 class_name="text-lg font-medium text-slate-700",
                             ),
                             rx.el.p(
-                                "System is running within normal parameters.",
+                                "El sistema funciona dentro de los parámetros normales.",
                                 class_name="text-slate-500",
                             ),
                             class_name="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-slate-100 border-dashed",

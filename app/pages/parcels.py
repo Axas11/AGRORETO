@@ -12,7 +12,7 @@ def parcel_card(parcel: Parcel) -> rx.Component:
             rx.el.div(
                 rx.icon("map-pin", class_name="w-6 h-6 text-blue-600 mb-2"),
                 rx.el.h3(parcel.name, class_name="text-lg font-bold text-slate-800"),
-                rx.el.p(f"{parcel.area} hectares", class_name="text-sm text-slate-500"),
+                rx.el.p(f"{parcel.area} hectáreas", class_name="text-sm text-slate-500"),
                 rx.el.p(
                     parcel.location, class_name="text-xs text-slate-400 mt-1 font-mono"
                 ),
@@ -20,7 +20,7 @@ def parcel_card(parcel: Parcel) -> rx.Component:
             ),
             rx.el.div(
                 rx.el.button(
-                    "Manage Sensors",
+                    "Administrar Sensores",
                     on_click=lambda: ParcelState.navigate_to_parcel(parcel.id),
                     class_name="text-blue-600 hover:text-blue-800 font-medium text-sm px-3 py-1 rounded-full hover:bg-blue-50 transition-colors",
                 ),
@@ -45,14 +45,14 @@ def add_parcel_modal() -> rx.Component:
         ParcelState.show_add_modal,
         rx.el.div(
             rx.el.div(
-                rx.el.h3("Add New Parcel", class_name="text-xl font-bold mb-4"),
+                rx.el.h3("Añadir Nueva Parcela", class_name="text-xl font-bold mb-4"),
                 rx.el.div(
                     rx.el.label(
-                        "Name",
+                        "Nombre",
                         class_name="text-sm font-medium text-slate-700 mb-1 block",
                     ),
                     rx.el.input(
-                        placeholder="e.g. North Field",
+                        placeholder="ej. Campo Norte",
                         class_name=M3Styles.INPUT_FIELD,
                         on_change=ParcelState.set_new_parcel_name,
                     ),
@@ -60,11 +60,11 @@ def add_parcel_modal() -> rx.Component:
                 ),
                 rx.el.div(
                     rx.el.label(
-                        "Location (Coords)",
+                        "Ubicación (Coordenadas)",
                         class_name="text-sm font-medium text-slate-700 mb-1 block",
                     ),
                     rx.el.input(
-                        placeholder="e.g. 34.05, -118.24",
+                        placeholder="ej. 34.05, -118.24",
                         class_name=M3Styles.INPUT_FIELD,
                         on_change=ParcelState.set_new_parcel_location,
                     ),
@@ -72,12 +72,12 @@ def add_parcel_modal() -> rx.Component:
                 ),
                 rx.el.div(
                     rx.el.label(
-                        "Area (Hectares)",
+                        "Área (Hectáreas)",
                         class_name="text-sm font-medium text-slate-700 mb-1 block",
                     ),
                     rx.el.input(
                         type="number",
-                        placeholder="e.g. 120.5",
+                        placeholder="ej. 120.5",
                         class_name=M3Styles.INPUT_FIELD,
                         on_change=ParcelState.set_new_parcel_area,
                     ),
@@ -85,12 +85,12 @@ def add_parcel_modal() -> rx.Component:
                 ),
                 rx.el.div(
                     rx.el.button(
-                        "Cancel",
+                        "Cancelar",
                         on_click=ParcelState.close_add_modal,
                         class_name="text-slate-600 font-medium px-4 py-2 hover:bg-slate-100 rounded-lg mr-2",
                     ),
                     rx.el.button(
-                        "Save Parcel",
+                        "Guardar Parcela",
                         on_click=ParcelState.add_parcel,
                         class_name=f"{M3Styles.BUTTON_PRIMARY} py-2 px-6",
                     ),
@@ -110,14 +110,14 @@ def parcels_page() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.h1(
-                        "My Parcels",
+                        "Mis Parcelas",
                         class_name=f"text-2xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",
                     ),
                     rx.cond(
                         AuthState.is_farmer,
                         rx.el.button(
                             rx.icon("plus", class_name="w-5 h-5 mr-2"),
-                            "Add Parcel",
+                            "Añadir Parcela",
                             on_click=ParcelState.open_add_modal,
                             class_name=f"{M3Styles.BUTTON_PRIMARY} py-2 px-4 text-sm",
                         ),

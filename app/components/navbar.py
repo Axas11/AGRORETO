@@ -20,17 +20,17 @@ def navbar() -> rx.Component:
                 ),
                 rx.el.div(
                     rx.el.a(
-                        "Dashboard",
+                        "Panel",
                         href="/dashboard",
                         class_name="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors",
                     ),
                     rx.el.a(
-                        "Parcels",
+                        "Parcelas",
                         href="/parcels",
                         class_name="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors",
                     ),
                     rx.el.a(
-                        "Alerts",
+                        "Alertas",
                         href="/alerts",
                         class_name="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors",
                     ),
@@ -51,7 +51,7 @@ def navbar() -> rx.Component:
                 ),
                 rx.el.button(
                     rx.icon("log-out", class_name="w-5 h-5"),
-                    "Logout",
+                    "Cerrar Sesión",
                     on_click=AuthState.logout,
                     class_name="flex items-center gap-2 text-sm font-medium text-red-600 hover:bg-red-50 px-4 py-2 rounded-full transition-colors",
                 ),

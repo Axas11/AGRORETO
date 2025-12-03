@@ -19,7 +19,7 @@ class SensorHistoryState(rx.State):
 
     @rx.var
     def sensor_code(self) -> str:
-        return self.sensor.id_code if self.sensor else "Loading..."
+        return self.sensor.id_code if self.sensor else "Cargando..."
 
     @rx.var
     def sensor_desc(self) -> str:

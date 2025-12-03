@@ -65,7 +65,7 @@ def sensor_status_card(sensor: dict) -> rx.Component:
                     class_name="flex items-end",
                 ),
                 rx.el.p(
-                    f"Updated: {sensor['last_update']}",
+                    f"Actualizado: {sensor['last_update']}",
                     class_name="text-xs text-slate-400 mt-3",
                 ),
             ),
@@ -93,7 +93,7 @@ def alert_item(alert: dict) -> rx.Component:
             rx.el.div(
                 rx.el.span(alert["time_ago"], class_name="text-xs text-slate-400 mr-3"),
                 rx.el.button(
-                    "Ack",
+                    "Confirmar",
                     on_click=lambda: DashboardState.acknowledge_alert(alert["id"]),
                     class_name="text-xs font-medium text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-md transition-colors",
                 ),
@@ -112,36 +112,36 @@ def dashboard_content() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.h2(
-                        f"Dashboard Overview",
+                        f"Resumen del Panel",
                         class_name=f"text-2xl font-bold text-slate-800 mb-1 {M3Styles.FONT_FAMILY}",
                     ),
                     rx.el.p(
-                        f"Welcome back, {AuthState.user_name}. System is monitoring in real-time.",
+                        f"Bienvenido de nuevo, {AuthState.user_name}. El sistema está monitoreando en tiempo real.",
                         class_name="text-slate-500",
                     ),
                     class_name="mb-8",
                 ),
                 rx.el.div(
                     summary_card(
-                        "Total Parcels",
+                        "Parcelas Totales",
                         AuthState.user_role.to_string(),
                         "map",
                         "text-blue-600",
-                        "Active monitoring zones",
+                        "Zonas de monitoreo activas",
                     ),
                     summary_card(
-                        "Active Sensors",
+                        "Sensores Activos",
                         DashboardState.total_sensors.to_string(),
                         "activity",
                         "text-purple-600",
-                        "Telemetry devices online",
+                        "Dispositivos de telemetría en línea",
                     ),
                     summary_card(
-                        "System Alerts",
+                        "Alertas del Sistema",
                         DashboardState.active_alerts.to_string(),
                         "bell",
                         "text-red-500",
-                        "Requires attention",
+                        "Requiere atención",
                     ),
                     class_name="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10",
                 ),
@@ -149,7 +149,7 @@ def dashboard_content() -> rx.Component:
                     rx.el.div(
                         rx.el.div(
                             rx.el.h3(
-                                "Live Telemetry",
+                                "Telemetría en Vivo",
                                 class_name="text-lg font-bold text-slate-800",
                             ),
                             rx.el.div(
@@ -157,7 +157,7 @@ def dashboard_content() -> rx.Component:
                                     class_name="w-2 h-2 rounded-full bg-green-500 animate-pulse"
                                 ),
                                 rx.el.span(
-                                    "Live Updates",
+                                    "Actualizaciones en Vivo",
                                     class_name="text-xs font-medium text-green-700",
                                 ),
                                 class_name="flex items-center gap-2 bg-green-50 px-3 py-1 rounded-full",
@@ -177,11 +177,11 @@ def dashboard_content() -> rx.Component:
                         rx.el.div(
                             rx.el.div(
                                 rx.el.h3(
-                                    "Active Alerts",
+                                    "Alertas Activas",
                                     class_name="text-lg font-bold text-slate-800",
                                 ),
                                 rx.el.a(
-                                    "View All",
+                                    "Ver Todas",
                                     href="/alerts",
                                     class_name="text-sm text-blue-600 hover:underline",
                                 ),
