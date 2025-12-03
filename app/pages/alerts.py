@@ -60,15 +60,26 @@ def alerts_page() -> rx.Component:
         rx.el.main(
             rx.el.div(
                 rx.el.div(
-                    rx.el.h1(
-                        "Alerts Management",
-                        class_name=f"text-2xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",
+                    rx.el.div(
+                        rx.el.h1(
+                            "Alerts Management",
+                            class_name=f"text-2xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",
+                        ),
+                        rx.el.p(
+                            "Review and manage sensor notifications",
+                            class_name="text-slate-500",
+                        ),
                     ),
-                    rx.el.p(
-                        "Review and manage sensor notifications",
-                        class_name="text-slate-500",
+                    rx.cond(
+                        (AlertState.alerts.length() > 0) & (AlertState.show_history == False),
+                        rx.el.button(
+                            rx.icon("check-check", class_name="w-4 h-4 mr-2"),
+                            "Acknowledge All",
+                            on_click=AlertState.acknowledge_all_alerts,
+                            class_name=f"{M3Styles.BUTTON_PRIMARY} text-sm py-2 px-4 flex items-center gap-2",
+                        ),
                     ),
-                    class_name="mb-8",
+                    class_name="mb-8 flex justify-between items-start",
                 ),
                 rx.el.div(
                     rx.el.div(

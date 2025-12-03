@@ -57,3 +57,22 @@ class AlertState(rx.State):
                 session.commit()
         self.load_alerts()
         return rx.toast("Alert acknowledged", duration=3000, close_button=True)
+
+    @rx.event
+    def acknowledge_all_alerts(self):
+        """Marca todas las alertas no reconocidas como reconocidas"""
+        with Session(engine) as session:
+            query = select(Alert).where(Alert.acknowledged == False)
+            if self.filter_type != "all":
+                query = query.where(Alert.type == self.filter_type)
+            alerts_to_ack = session.exec(query).all()
+            count = len(alerts_to_ack)
+            
+            for alert in alerts_to_ack:
+                alert.acknowledged = True
+                session.add(alert)
+            
+            session.commit()
+        
+        self.load_alerts()
+        return rx.toast(f"{count} alert(s) acknowledged", duration=3000, close_button=True)
