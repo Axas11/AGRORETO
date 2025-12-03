@@ -65,7 +65,7 @@ class DashboardState(rx.State):
                             )
                             session.add(new_alert)
                             session.commit()
-                    diff = datetime.utcnow() - latest.timestamp
+                    diff = datetime.now() - latest.timestamp
                     if diff.total_seconds() < 60:
                         last_update = "Just now"
                     elif diff.total_seconds() < 3600:
@@ -97,7 +97,7 @@ class DashboardState(rx.State):
             alerts_display = []
             for a in alerts:
                 s = session.get(Sensor, a.sensor_id)
-                diff = datetime.utcnow() - a.timestamp
+                diff = datetime.now() - a.timestamp
                 if diff.total_seconds() < 3600:
                     time_ago = f"{int(diff.total_seconds() / 60)}m ago"
                 elif diff.total_seconds() < 86400:

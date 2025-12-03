@@ -204,7 +204,7 @@ class SensorState(rx.State):
                 
                 reading = SensorData(
                     sensor_id=sensor_id,
-                    timestamp=data.get('timestamp', datetime.utcnow()),
+                    timestamp=data.get('timestamp', datetime.now()),
                     value=float(value),
                     raw=data.get('raw_payload', json.dumps(data_for_json))  # ← Usa data_for_json
                 )
@@ -246,7 +246,7 @@ class SensorState(rx.State):
             with Session(engine) as session:
                 alert = Alert(
                     sensor_id=sensor_id,
-                    timestamp=datetime.utcnow(),
+                    timestamp=datetime.now(),
                     type=alert_type,
                     message=message,
                     acknowledged=False

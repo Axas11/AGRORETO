@@ -144,7 +144,7 @@ class MAIoTAMultiSensorClient:
             raw_values[f'D{data_num}'] = (value, arrow)
         
         return {
-            'timestamp': datetime.utcnow(),
+            'timestamp': datetime.now(),
             'temperatura': raw_values.get('D1', (0, ''))[0] / 100,
             'humedad_ambiente': raw_values.get('D2', (0, ''))[0] / 100,
             'humedad_suelo': raw_values.get('D3', (0, ''))[0] / 100,

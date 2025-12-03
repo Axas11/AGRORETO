@@ -82,7 +82,7 @@ class SensorHistoryState(rx.State):
             else:
                 self.parcel_name = "Sensor Not Found"
                 return
-            now = datetime.utcnow()
+            now = datetime.now()
             if self.time_range == "24h":
                 start_time = now - timedelta(hours=24)
             elif self.time_range == "7d":

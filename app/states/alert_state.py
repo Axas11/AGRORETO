@@ -2,7 +2,7 @@ import reflex as rx
 from sqlmodel import select, Session, desc
 from app.models import Alert, Sensor
 from app.utils import engine
-from datetime import datetime
+
 
 
 class AlertState(rx.State):
