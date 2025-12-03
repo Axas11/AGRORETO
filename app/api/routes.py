@@ -103,7 +103,7 @@ def receive_sensor_data(request: Request, sensor_id: int, data: SensorDataInput)
     with Session(engine) as session:
         sensor = session.get(Sensor, sensor_id)
         if not sensor:
-            return JSONResponse(status_code=404, content={"detail": "Sensor not found"})
+            return JSONResponse(status_code=404, content={"detail": "Sensor no encontrado"})
         
         new_data = SensorData(
             sensor_id=sensor_id,
@@ -150,9 +150,9 @@ def acknowledge_alert(request: Request, alert_id: int):
         from app.models import Alert
         alert = session.get(Alert, alert_id)
         if not alert:
-            return JSONResponse(status_code=404, content={"detail": "Alert not found"})
+            return JSONResponse(status_code=404, content={"detail": "Alerta no encontrada"})
         
         alert.acknowledged = True
         session.add(alert)
         session.commit()
-        return JSONResponse(content={"status": "success", "message": "Alert acknowledged"})
+        return JSONResponse(content={"status": "success", "message": "Alerta confirmada"})

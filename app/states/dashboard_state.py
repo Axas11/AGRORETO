@@ -33,7 +33,7 @@ class DashboardState(rx.State):
                 latest = self._get_latest_reading(session, sensor.id)
                 status = "gray"
                 value_display = "--"
-                last_update = "Never"
+                last_update = "Nunca"
                 if latest:
                     val = latest.value
                     value_display = f"{val:.1f}"
@@ -67,11 +67,11 @@ class DashboardState(rx.State):
                             session.commit()
                     diff = datetime.now() - latest.timestamp
                     if diff.total_seconds() < 60:
-                        last_update = "Just now"
+                        last_update = "Justo ahora"
                     elif diff.total_seconds() < 3600:
-                        last_update = f"{int(diff.total_seconds() / 60)}m ago"
+                        last_update = f"{int(diff.total_seconds() / 60)}m atrás"
                     else:
-                        last_update = f"{int(diff.total_seconds() / 3600)}h ago"
+                        last_update = f"{int(diff.total_seconds() / 3600)}h atrás"
                 status_list.append(
                     {
                         "id": sensor.id,
@@ -99,15 +99,15 @@ class DashboardState(rx.State):
                 s = session.get(Sensor, a.sensor_id)
                 diff = datetime.now() - a.timestamp
                 if diff.total_seconds() < 3600:
-                    time_ago = f"{int(diff.total_seconds() / 60)}m ago"
+                    time_ago = f"{int(diff.total_seconds() / 60)}m atrás"
                 elif diff.total_seconds() < 86400:
-                    time_ago = f"{int(diff.total_seconds() / 3600)}h ago"
+                    time_ago = f"{int(diff.total_seconds() / 3600)}h atrás"
                 else:
-                    time_ago = f"{int(diff.days)}d ago"
+                    time_ago = f"{int(diff.days)}d atrás"
                 alerts_display.append(
                     {
                         "id": a.id,
-                        "sensor_code": s.id_code if s else "Unknown",
+                        "sensor_code": s.id_code if s else "Desconocido",
                         "type": a.type,
                         "message": a.message,
                         "time_ago": time_ago,
@@ -124,7 +124,7 @@ class DashboardState(rx.State):
                 session.add(alert)
                 session.commit()
         self.load_dashboard_stats()
-        return rx.toast("Alert acknowledged", duration=3000, close_button=True)
+        return rx.toast("Alerta confirmada", duration=3000, close_button=True)
 
     @rx.event(background=True)
     async def start_polling(self):

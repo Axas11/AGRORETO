@@ -10,11 +10,11 @@ def login_form() -> rx.Component:
             rx.el.div(
                 rx.image(src="/favicon.ico", class_name="w-12 h-12 mb-4"),
                 rx.el.h1(
-                    "Welcome Back",
+                    "Bienvenido de Nuevo",
                     class_name=f"text-3xl font-bold text-slate-800 mb-2 {M3Styles.FONT_FAMILY}",
                 ),
                 rx.el.p(
-                    "Sign in to access your Agrotech Dashboard",
+                    "Inicia sesión para acceder a tu Panel Agrotech",
                     class_name="text-slate-500 mb-8 font-medium",
                 ),
                 class_name="flex flex-col items-center text-center",
@@ -22,11 +22,11 @@ def login_form() -> rx.Component:
             rx.el.form(
                 rx.el.div(
                     rx.el.label(
-                        "Username",
+                        "Usuario",
                         class_name="text-sm font-semibold text-slate-700 ml-1 mb-1 block",
                     ),
                     rx.el.input(
-                        placeholder="e.g., admin",
+                        placeholder="ej., admin",
                         name="username",
                         class_name=M3Styles.INPUT_FIELD,
                         default_value=AuthState.username,
@@ -35,7 +35,7 @@ def login_form() -> rx.Component:
                 ),
                 rx.el.div(
                     rx.el.label(
-                        "Password",
+                        "Contraseña",
                         class_name="text-sm font-semibold text-slate-700 ml-1 mb-1 block",
                     ),
                     rx.el.input(
@@ -59,7 +59,7 @@ def login_form() -> rx.Component:
                     rx.cond(
                         AuthState.is_loading,
                         rx.spinner(size="2", color="white"),
-                        rx.el.span("Sign In"),
+                        rx.el.span("Iniciar Sesión"),
                     ),
                     rx.cond(
                         AuthState.is_loading,
@@ -74,19 +74,19 @@ def login_form() -> rx.Component:
             ),
             rx.el.div(
                 rx.el.p(
-                    "Demo Credentials:",
+                    "Credenciales de Demostración:",
                     class_name="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2",
                 ),
                 rx.el.div(
                     rx.el.div(
-                        rx.el.span("Farmer: ", class_name="text-slate-600 font-bold"),
+                        rx.el.span("Agricultor: ", class_name="text-slate-600 font-bold"),
                         rx.el.span(
                             "admin / admin123", class_name="text-slate-500 font-mono"
                         ),
                         class_name="text-xs",
                     ),
                     rx.el.div(
-                        rx.el.span("Tech: ", class_name="text-slate-600 font-bold"),
+                        rx.el.span("Técnico: ", class_name="text-slate-600 font-bold"),
                         rx.el.span(
                             "tech / tech123", class_name="text-slate-500 font-mono"
                         ),

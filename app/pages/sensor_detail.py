@@ -41,12 +41,12 @@ def sensor_detail_page() -> rx.Component:
                 rx.el.div(
                     rx.el.a(
                         rx.icon("arrow-left", class_name="w-4 h-4 mr-1"),
-                        "Back to Dashboard",
+                        "Volver al Panel",
                         href="/dashboard",
                         class_name="flex items-center text-slate-500 hover:text-blue-600 mb-4 text-sm",
                     ),
                     rx.cond(
-                        SensorHistoryState.sensor_code != "Loading...",
+                        SensorHistoryState.sensor_code != "Cargando...",
                         rx.el.div(
                             rx.el.div(
                                 rx.el.div(
@@ -75,13 +75,13 @@ def sensor_detail_page() -> rx.Component:
                             rx.el.div(
                                 rx.el.div(
                                     rx.el.h3(
-                                        "Historical Analysis",
+                                        "Análisis Histórico",
                                         class_name="text-lg font-bold text-slate-800",
                                     ),
                                     rx.el.div(
                                         range_button("24h", "24h"),
-                                        range_button("7 Days", "7d"),
-                                        range_button("30 Days", "30d"),
+                                        range_button("7 Días", "7d"),
+                                        range_button("30 Días", "30d"),
                                         class_name="flex gap-2",
                                     ),
                                     class_name="flex justify-between items-center mb-6",
@@ -94,7 +94,7 @@ def sensor_detail_page() -> rx.Component:
                                             SensorHistoryState.graph_color,
                                         ),
                                         rx.el.div(
-                                            "No data points available for this range.",
+                                            "No hay puntos de datos disponibles para este rango.",
                                             class_name="flex items-center justify-center h-full text-slate-400 text-sm",
                                         ),
                                     ),

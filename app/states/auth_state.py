@@ -28,7 +28,7 @@ class AuthState(rx.State):
             self.username = form_data.get("username", "")
             self.password = form_data.get("password", "")
             if not self.username or not self.password:
-                self.error_message = "Please enter both username and password."
+                self.error_message = "Por favor ingresa usuario y contraseña."
                 return
             self.is_loading = True
             self.error_message = ""
@@ -47,7 +47,7 @@ class AuthState(rx.State):
                     return rx.redirect("/dashboard")  # ← CAMBIO AQUÍ
                 else:
                     self.is_loading = False
-                    self.error_message = "Invalid username or password."
+                    self.error_message = "Usuario o contraseña inválidos."
 
     @rx.event(background=True)
     async def register_user(self, form_data: dict):

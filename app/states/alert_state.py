@@ -36,7 +36,7 @@ class AlertState(rx.State):
                 display_list.append(
                     {
                         "id": a.id,
-                        "sensor_code": s.id_code if s else "Unknown",
+                        "sensor_code": s.id_code if s else "Desconocido",
                         "sensor_type": s.type if s else "",
                         "type": a.type,
                         "message": a.message,
@@ -56,7 +56,7 @@ class AlertState(rx.State):
                 session.add(alert)
                 session.commit()
         self.load_alerts()
-        return rx.toast("Alert acknowledged", duration=3000, close_button=True)
+        return rx.toast("Alerta confirmada", duration=3000, close_button=True)
 
     @rx.event
     def acknowledge_all_alerts(self):
@@ -75,4 +75,4 @@ class AlertState(rx.State):
             session.commit()
         
         self.load_alerts()
-        return rx.toast(f"{count} alert(s) acknowledged", duration=3000, close_button=True)
+        return rx.toast(f"{count} alerta(s) confirmada(s)", duration=3000, close_button=True)
