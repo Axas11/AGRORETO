@@ -26,7 +26,7 @@ def register_form() -> rx.Component:
                         class_name="text-sm font-semibold text-slate-700 ml-1 mb-1 block",
                     ),
                     rx.el.input(
-                        placeholder="ej., juanperez",
+                        placeholder="ej., pepellados",
                         name="username",
                         class_name=M3Styles.INPUT_FIELD,
                         required=True,
