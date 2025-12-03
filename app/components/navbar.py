@@ -9,7 +9,7 @@ def navbar() -> rx.Component:
             rx.el.div(
                 rx.el.a(
                     rx.el.div(
-                        rx.icon("sprout", class_name="w-6 h-6 text-blue-600"),
+                        rx.image(src="/favicon.ico", class_name="w-6 h-6"),
                         rx.el.span(
                             "Agrotech",
                             class_name=f"text-xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",

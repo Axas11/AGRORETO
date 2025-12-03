@@ -8,7 +8,7 @@ def register_form() -> rx.Component:
     return rx.el.div(
         rx.el.div(
             rx.el.div(
-                rx.icon("sprout", class_name="w-12 h-12 text-green-600 mb-4"),
+                rx.image(src="/favicon.ico", class_name="w-12 h-12 mb-4"),
                 rx.el.h1(
                     "Crear Cuenta",
                     class_name=f"text-3xl font-bold text-slate-800 mb-2 {M3Styles.FONT_FAMILY}",
