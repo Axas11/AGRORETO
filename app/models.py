@@ -9,7 +9,7 @@ class User(SQLModel, table=True):
     username: str
     password_hash: str
     role: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
 
 class Parcel(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -17,7 +17,7 @@ class Parcel(SQLModel, table=True):
     location: str
     area: float
     owner_id: int = Field(foreign_key="user.id")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)
 
 class Sensor(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
@@ -36,15 +36,15 @@ class Sensor(SQLModel, table=True):
 class SensorData(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sensor_id: int = Field(foreign_key="sensor.id")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=datetime.now)
     value: float
     raw: str  # Aquí guardaremos el JSON completo del MAIoTA
 
 class Alert(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sensor_id: int = Field(foreign_key="sensor.id")
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=datetime.now)
     type: str  # low, high, offline, etc.
     message: str
     acknowledged: bool = False
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.now)

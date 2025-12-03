@@ -46,7 +46,7 @@ def save_sensor_reading_direct(sensor_id: int, sensor_type: str, data: dict):
             # Crear registro
             reading = SensorData(
                 sensor_id=sensor_id,
-                timestamp=data.get('timestamp', datetime.utcnow()),
+                timestamp=data.get('timestamp', datetime.now()),
                 value=float(value),
                 raw=data.get('raw_payload', json.dumps(data_for_json))
             )
@@ -89,7 +89,7 @@ def check_thresholds_direct(session: Session, sensor_id: int, sensor_type: str, 
         if alert_type and alert_message:
             alert = Alert(
                 sensor_id=sensor_id,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(),
                 type=alert_type,
                 message=alert_message,
                 acknowledged=False
