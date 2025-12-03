@@ -35,6 +35,14 @@ def navbar() -> rx.Component:
                         href="/alerts",
                         class_name="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors",
                     ),
+                    rx.cond(
+                        AuthState.is_farmer,
+                        rx.el.a(
+                            "👥 Admin",
+                            href="/admin/users",
+                            class_name="text-sm font-medium text-amber-600 hover:text-amber-800 transition-colors font-semibold",
+                        ),
+                    ),
                     class_name="hidden md:flex items-center gap-6 ml-8",
                 ),
                 class_name="flex items-center",

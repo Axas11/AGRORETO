@@ -39,6 +39,12 @@ class AuthState(rx.State):
                     select(User).where(User.username == self.username)
                 ).first()
                 if user and verify_password(self.password, user.password_hash):
+                    # Bloquear si el rol es "registered" (pendiente de aprobación)
+                    if user.role == "registered":
+                        self.is_loading = False
+                        self.error_message = "Tu cuenta está pendiente de aprobación del administrador. Por favor, espera a que se confirme tu acceso."
+                        return
+                    
                     self.user_id = user.id
                     self.user_role = user.role
                     self.user_name = user.username
@@ -95,11 +101,11 @@ class AuthState(rx.State):
                     self.error_message = "El nombre de usuario ya está en uso."
                     return
                 
-                # Crear nuevo usuario con rol 'technician'
+                # Crear nuevo usuario con rol 'registered' (pendiente de aprobación)
                 new_user = User(
                     username=username,
                     password_hash=get_password_hash(password),
-                    role="technician"
+                    role="registered"
                 )
                 
                 session.add(new_user)
@@ -107,7 +113,7 @@ class AuthState(rx.State):
                 session.refresh(new_user)
                 
                 self.is_loading = False
-                self.success_message = "¡Cuenta creada exitosamente! Redirigiendo al login..."
+                self.success_message = "¡Cuenta creada exitosamente! Tu cuenta está pendiente de aprobación del administrador. Redirigiendo..."
                 
         await asyncio.sleep(1.5)
         return rx.redirect("/")
@@ -152,3 +158,8 @@ class AuthState(rx.State):
     @rx.var
     def is_technician(self) -> bool:
         return self.user_role == "technician"
+
+    @rx.var
+    def is_registered(self) -> bool:
+        """Usuario pendiente de aprobación"""
+        return self.user_role == "registered"

@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 
 from app.api.routes import router as api_router
 from app.models import Alert, Sensor, SensorData
+from app.pages.admin_users import AdminUserState, admin_users_page
 from app.pages.alerts import alerts_page
 from app.pages.dashboard import dashboard
 from app.pages.index import index
@@ -194,6 +195,9 @@ def dashboard_page() -> rx.Component:
 def index_page() -> rx.Component:
     return index()
 
+def admin_page() -> rx.Component:
+    return admin_users_page()
+
 def api_routes(api_app):
     """Registra las rutas de la API REST"""
     from fastapi import FastAPI
@@ -310,4 +314,13 @@ app.add_page(
     on_load=[AuthState.check_authentication,
              AuthState.ensure_db_seeded, 
              AlertState.load_alerts],
+)
+
+app.add_page(
+    admin_page,
+    route="/admin/users",
+    title="Admin - Gestión de Usuarios",
+    on_load=[AuthState.check_authentication,
+             AuthState.ensure_db_seeded, 
+             AdminUserState.load_users],
 )

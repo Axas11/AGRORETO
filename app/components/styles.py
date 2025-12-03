@@ -25,4 +25,6 @@ class M3Styles:
     ELEVATION_3 = "shadow-lg"
     INPUT_FIELD = f"w-full px-4 py-3 {SURFACE_VARIANT} border-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-all duration-200 {ROUNDED_MD} text-slate-800 placeholder-slate-400"
     BUTTON_PRIMARY = f"{PRIMARY} {ON_PRIMARY} {ROUNDED_FULL} px-8 py-3 font-medium hover:shadow-lg hover:bg-blue-700 transition-all duration-200 flex items-center justify-center gap-2"
+    # ✅ NUEVO: Botón secundario
+    BUTTON_SECONDARY = f"{SECONDARY} {ON_SECONDARY} {ROUNDED_FULL} px-8 py-3 font-medium hover:shadow-lg hover:bg-slate-700 transition-all duration-200 flex items-center justify-center gap-2"
     CARD = f"{SURFACE} {ROUNDED_XL} {ELEVATION_1} p-6 border border-slate-100"

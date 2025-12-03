@@ -1,14 +1,16 @@
 # app/models.py
-import reflex as rx
 from datetime import datetime
+
+import reflex as rx
 import sqlmodel
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field, SQLModel
+
 
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str
     password_hash: str
-    role: str
+    role: str  # farmer, technician, registered (pending approval)
     created_at: datetime = Field(default_factory=datetime.now)
 
 class Parcel(SQLModel, table=True):
