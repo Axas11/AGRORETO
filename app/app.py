@@ -10,6 +10,7 @@ from app.api.routes import router as api_router
 from app.models import Alert, Sensor, SensorData
 from app.pages.alerts import alerts_page
 from app.pages.dashboard import dashboard
+from app.pages.index import index
 from app.pages.login_form import login_form
 from app.pages.parcel_detail import parcel_detail_page
 from app.pages.parcels import parcels_page
@@ -187,10 +188,8 @@ def login_page() -> rx.Component:
 def dashboard_page() -> rx.Component:
     return dashboard()
 
-
-def index() -> rx.Component:
-    """Redirect root to dashboard (which will redirect to login if needed)."""
-    return rx.el.div(rx.script("window.location.href = '/login'"))
+def index_page() -> rx.Component:
+    return index()
 
 def api_routes(api_app):
     """Registra las rutas de la API REST"""
@@ -246,10 +245,9 @@ app.add_page(
 )
 
 app.add_page(
-    login_page,
+    index_page,
     route="/",  
-    title="Login - Agrotech",
-    on_load=AuthState.ensure_db_seeded,
+    title="Inicio - Agrotech",
 )
 
 #registro pagina
