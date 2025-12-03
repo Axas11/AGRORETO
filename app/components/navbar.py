@@ -17,7 +17,7 @@ def navbar() -> rx.Component:
                         ),
                         class_name="flex items-center gap-2",
                     ),
-                    href="/",
+                    href="/info",
                 ),
                 rx.el.div(
                     rx.el.a(

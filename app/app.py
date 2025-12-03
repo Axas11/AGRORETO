@@ -11,6 +11,7 @@ from app.models import Alert, Sensor, SensorData
 from app.pages.alerts import alerts_page
 from app.pages.dashboard import dashboard
 from app.pages.index import index
+from app.pages.info import info
 from app.pages.login_form import login_form
 from app.pages.parcel_detail import parcel_detail_page
 from app.pages.parcels import parcels_page
@@ -184,6 +185,8 @@ def register_page() -> rx.Component:
 def login_page() -> rx.Component:
     return login_form()
 
+def info_page() -> rx.components:
+    return info()
 
 def dashboard_page() -> rx.Component:
     return dashboard()
@@ -248,6 +251,13 @@ app.add_page(
     index_page,
     route="/",  
     title="Inicio - Agrotech",
+)
+
+app.add_page(
+    info_page,
+    route="/info",  
+    title="Inicio - Agrotech",
+    on_load=AuthState.check_auth_or_index,
 )
 
 #registro pagina

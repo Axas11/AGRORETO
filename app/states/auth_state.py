@@ -135,6 +135,12 @@ class AuthState(rx.State):
         if not self.is_authenticated:
             return rx.redirect("/login") 
 
+    @rx.event
+    def check_auth_or_index(self):
+        """Verifica autenticación y redirige a la página de inicio si no está autenticado."""
+        if not self.is_authenticated:
+            return rx.redirect("/")
+
     @rx.var
     def is_authenticated(self) -> bool:
         return self.user_id is not None
