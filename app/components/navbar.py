@@ -1,6 +1,7 @@
 import reflex as rx
-from app.states.auth_state import AuthState
+
 from app.components.styles import M3Styles
+from app.states.auth_state import AuthState
 
 
 def navbar() -> rx.Component:
@@ -16,7 +17,7 @@ def navbar() -> rx.Component:
                         ),
                         class_name="flex items-center gap-2",
                     ),
-                    href="/dashboard",
+                    href="/",
                 ),
                 rx.el.div(
                     rx.el.a(

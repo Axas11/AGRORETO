@@ -12,7 +12,7 @@ def index_page() -> rx.Component:
                 rx.el.div(
                     rx.icon("sprout", class_name="w-8 h-8 text-green-600"),
                     rx.el.h2(
-                        "AGRORETO",
+                        "AGROTECH",
                         class_name=f"text-2xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",
                     ),
                     class_name="flex items-center gap-2",
@@ -186,12 +186,12 @@ def index_page() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.h2(
-                        "Sobre AGRORETO",
+                        "Sobre AGROTECH",
                         id="about",
                         class_name=f"text-4xl font-bold text-slate-900 mb-6 {M3Styles.FONT_FAMILY}",
                     ),
                     rx.el.p(
-                        "AGRORETO es un sistema integral de monitoreo agrícola diseñado para maximizar la productividad de tus cultivos. "
+                        "AGROTECH es un sistema integral de monitoreo agrícola diseñado para maximizar la productividad de tus cultivos. "
                         "Con conexión a sensores IoT en tiempo real, podrás tomar decisiones basadas en datos precisos.",
                         class_name="text-lg text-slate-600 mb-4 leading-relaxed",
                     ),
@@ -216,7 +216,7 @@ def index_page() -> rx.Component:
                         class_name=f"text-4xl font-bold text-white mb-4 text-center {M3Styles.FONT_FAMILY}",
                     ),
                     rx.el.p(
-                        "Únete a agricultores que ya están optimizando sus cultivos con AGRORETO",
+                        "Únete a agricultores que ya están optimizando sus cultivos con AGROTECH",
                         class_name="text-lg text-blue-100 text-center mb-8",
                     ),
                     rx.el.div(
@@ -243,7 +243,7 @@ def index_page() -> rx.Component:
             rx.el.div(
                 rx.el.div(
                     rx.el.p(
-                        "© 2025 AGRORETO. Todos los derechos reservados.",
+                        "© 2025 AGROTECH. Todos los derechos reservados.",
                         class_name="text-slate-600 text-center",
                     ),
                 ),
