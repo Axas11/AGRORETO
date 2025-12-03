@@ -106,6 +106,14 @@ def login_form() -> rx.Component:
                     ),
                     class_name="text-sm text-slate-600",
                 ),
+                rx.el.p(
+                    rx.el.a(
+                        "Volver inicio",
+                        href="/",
+                        class_name="text-blue-600 hover:text-blue-800 font-semibold",
+                    ),
+                    class_name="text-sm text-slate-600",
+                ),
                 class_name="mt-4 text-center w-full",
             ),
             class_name=f"w-full max-w-md {M3Styles.CARD} {M3Styles.ELEVATION_3}",

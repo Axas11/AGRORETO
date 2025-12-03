@@ -44,7 +44,7 @@ class AuthState(rx.State):
                     self.user_name = user.username
                     self.is_loading = False
                     self.password = ""
-                    return rx.redirect("/dashboard")  # ← CAMBIO AQUÍ
+                    return rx.redirect("/info")  
                 else:
                     self.is_loading = False
                     self.error_message = "Usuario o contraseña inválidos."
@@ -110,7 +110,7 @@ class AuthState(rx.State):
                 self.success_message = "¡Cuenta creada exitosamente! Redirigiendo al login..."
                 
         await asyncio.sleep(1.5)
-        return rx.redirect("/login")
+        return rx.redirect("/")
 
     @rx.event
     def logout(self):
@@ -122,7 +122,7 @@ class AuthState(rx.State):
         self.password = ""
         self.error_message = ""
         self.success_message = ""
-        return rx.redirect("/login")
+        return rx.redirect("/")
 
     @rx.event
     def ensure_db_seeded(self):
@@ -133,7 +133,7 @@ class AuthState(rx.State):
     def check_authentication(self):
         """Verifica autenticación antes de acceder a páginas protegidas"""
         if not self.is_authenticated:
-            return rx.redirect("/login") 
+            return rx.redirect("/") 
 
     @rx.event
     def check_auth_or_index(self):

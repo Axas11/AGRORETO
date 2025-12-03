@@ -1,6 +1,7 @@
 import reflex as rx
 
 from app.components.styles import M3Styles
+from app.states.auth_state import AuthState
 
 
 def info_page() -> rx.Component:
@@ -28,6 +29,12 @@ def info_page() -> rx.Component:
                         href="#about",
                         class_name="text-slate-600 hover:text-blue-600 transition-colors",
                     ),
+                    rx.el.button(
+                    rx.icon("log-out", class_name="w-5 h-5"),
+                    "Cerrar Sesión",
+                    on_click=AuthState.logout,
+                    class_name="flex items-center gap-2 text-sm font-medium text-red-600 hover:bg-red-50 px-4 py-2 rounded-full transition-colors",
+                    ),
                     class_name="flex gap-8 items-center",
                 ),
                 class_name="flex justify-between items-center",
@@ -51,7 +58,7 @@ def info_page() -> rx.Component:
                         rx.el.a(
                             rx.el.div(
                                 rx.icon("log-in", class_name="w-5 h-5"),
-                                rx.el.span("Entrar"),
+                                rx.el.span("Entrar Panel"),
                                 class_name="flex items-center gap-2",
                             ),
                             href="/dashboard",
