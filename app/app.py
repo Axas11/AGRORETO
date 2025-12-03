@@ -7,13 +7,13 @@ import reflex as rx
 from sqlmodel import Session, select
 
 from app.api.routes import router as api_router
-from app.components.login_form import login_form
-from app.components.register_form import register_form
 from app.models import Alert, Sensor, SensorData
 from app.pages.alerts import alerts_page
 from app.pages.dashboard import dashboard
+from app.pages.login_form import login_form
 from app.pages.parcel_detail import parcel_detail_page
 from app.pages.parcels import parcels_page
+from app.pages.register_form import register_form
 from app.pages.sensor_detail import sensor_detail_page
 # Importar MQTT y modelos
 from app.services.maiota_client import maiota_client
