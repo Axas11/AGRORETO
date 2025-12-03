@@ -10,7 +10,7 @@ from starlette.responses import JSONResponse  # ← AÑADIR ESTO
 from app.models import Parcel, Sensor, SensorData
 from app.utils import engine
 
-router = APIRouter(prefix="/api")
+router = APIRouter() 
 
 class SensorDataInput(BaseModel):
     timestamp: Optional[datetime] = None
@@ -41,7 +41,7 @@ def get_parcels(request: Request):
             {"id": p.id, "name": p.name, "location": p.location, "area": p.area, "owner_id": p.owner_id}
             for p in parcels
         ]
-        return JSONResponse(content=data)  # ← CAMBIO AQUÍ
+        return JSONResponse(content=data)  
 
 @router.get("/parcels/{parcel_id}/sensors")
 def get_parcel_sensors(request: Request, parcel_id: int):

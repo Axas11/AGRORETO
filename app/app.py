@@ -192,26 +192,17 @@ def index() -> rx.Component:
     """Redirect root to dashboard (which will redirect to login if needed)."""
     return rx.el.div(rx.script("window.location.href = '/login'"))
 
-
 def api_routes(api_app):
     """Registra las rutas de la API REST"""
-    # Registrar cada ruta del router
-    for route in api_router.routes:
-        # Construir la ruta completa
-        path = route.path
-        if not path.startswith(api_router.prefix):
-            path = f"{api_router.prefix}{path}"
-        
-        # Añadir la ruta
-        api_app.add_route(
-            path,
-            route.endpoint,
-            methods=list(route.methods) if route.methods else ["GET"]
-        )
+    from fastapi import FastAPI
+
+    # Crear app FastAPI temporal
+    fastapi_app = FastAPI()
+    fastapi_app.include_router(api_router)
     
+    # Montar en Starlette
+    api_app.mount("/api", fastapi_app)
     return api_app
-
-
 
 # ==================== INICIALIZACIÓN MQTT ====================
 logger.info("🚀 Iniciando aplicación Agrotech...")
