@@ -10,7 +10,7 @@ def index_page() -> rx.Component:
         rx.el.nav(
             rx.el.div(
                 rx.el.div(
-                    rx.icon("sprout", class_name="w-8 h-8 text-green-600"),
+                    rx.image(src="/favicon.ico", class_name="w-8 h-8"),
                     rx.el.h2(
                         "AGROTECH",
                         class_name=f"text-2xl font-bold text-slate-800 {M3Styles.FONT_FAMILY}",
