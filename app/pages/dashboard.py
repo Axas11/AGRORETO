@@ -1,8 +1,10 @@
+# app/pages/dashboard.py
 import reflex as rx
+
+from app.components.navbar import navbar
+from app.components.styles import M3Styles
 from app.states.auth_state import AuthState
 from app.states.dashboard_state import DashboardState
-from app.components.styles import M3Styles
-from app.components.navbar import navbar
 
 
 def summary_card(
@@ -26,6 +28,7 @@ def summary_card(
 
 
 def sensor_status_card(sensor: dict) -> rx.Component:
+    """Tarjeta de sensor con estado"""
     return rx.el.a(
         rx.el.div(
             rx.el.div(
@@ -77,10 +80,11 @@ def sensor_status_card(sensor: dict) -> rx.Component:
 
 
 def alert_item(alert: dict) -> rx.Component:
+    """Item de alerta"""
     return rx.el.div(
         rx.el.div(
             rx.el.div(
-                rx.icon("flag_triangle_right", class_name="w-5 h-5 text-red-500 mr-3"),
+                rx.icon("triangle_alert", class_name="w-5 h-5 text-red-500 mr-3"),
                 rx.el.div(
                     rx.el.p(
                         alert["sensor_code"],
@@ -91,10 +95,13 @@ def alert_item(alert: dict) -> rx.Component:
                 class_name="flex items-start flex-1",
             ),
             rx.el.div(
-                rx.el.span(alert["time_ago"], class_name="text-xs text-slate-400 mr-3"),
+                rx.el.span(
+                    alert["time_ago"], 
+                    class_name="text-xs text-slate-400 mr-3"
+                ),
                 rx.el.button(
                     "Confirmar",
-                    on_click=lambda: DashboardState.acknowledge_alert(alert["id"]),
+                    on_click=DashboardState.acknowledge_alert(alert["id"]),
                     class_name="text-xs font-medium text-blue-600 hover:bg-blue-50 px-2 py-1 rounded-md transition-colors",
                 ),
                 class_name="flex items-center",
@@ -110,41 +117,50 @@ def dashboard_content() -> rx.Component:
         navbar(),
         rx.el.main(
             rx.el.div(
+                # Header
                 rx.el.div(
                     rx.el.h2(
-                        f"Resumen del Panel",
+                        "Resumen del Panel",
                         class_name=f"text-2xl font-bold text-slate-800 mb-1 {M3Styles.FONT_FAMILY}",
                     ),
                     rx.el.p(
-                        f"Bienvenido de nuevo, {AuthState.user_name}. El sistema está monitoreando en tiempo real.",
+                        rx.text(
+                            "Bienvenido de nuevo, ",
+                            AuthState.user_name,
+                            ". El sistema está monitoreando en tiempo real."
+                        ),
                         class_name="text-slate-500",
                     ),
                     class_name="mb-8",
                 ),
+                
+                # Summary cards
                 rx.el.div(
-                    summary_card(
-                        "Parcelas Totales",
-                        AuthState.user_role.to_string(),
-                        "map",
-                        "text-blue-600",
-                        "Zonas de monitoreo activas",
-                    ),
                     summary_card(
                         "Sensores Activos",
                         DashboardState.total_sensors.to_string(),
                         "activity",
                         "text-purple-600",
-                        "Dispositivos de telemetría en línea",
+                        "Dispositivos en línea",
                     ),
                     summary_card(
-                        "Alertas del Sistema",
+                        "Estado Crítico",
+                        DashboardState.critical_count.to_string(),
+                        "alert_circle",
+                        "text-red-500",
+                        "Fuera de rango",
+                    ),
+                    summary_card(
+                        "Alertas Activas",
                         DashboardState.active_alerts.to_string(),
                         "bell",
-                        "text-red-500",
+                        "text-orange-500",
                         "Requiere atención",
                     ),
                     class_name="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10",
                 ),
+                
+                # Sensores
                 rx.el.div(
                     rx.el.div(
                         rx.el.div(
@@ -164,14 +180,30 @@ def dashboard_content() -> rx.Component:
                             ),
                             class_name="flex justify-between items-center mb-6",
                         ),
-                        rx.el.div(
-                            rx.foreach(
-                                DashboardState.sensor_statuses, sensor_status_card
+                        
+                        # Grid de sensores
+                        rx.cond(
+                            DashboardState.sensor_statuses.length() > 0,
+                            rx.el.div(
+                                rx.foreach(
+                                    DashboardState.sensor_statuses, 
+                                    sensor_status_card
+                                ),
+                                class_name="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4",
                             ),
-                            class_name="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4",
+                            rx.el.div(
+                                rx.icon("inbox", class_name="w-12 h-12 text-slate-300 mb-2"),
+                                rx.el.p(
+                                    "No hay sensores asignados",
+                                    class_name="text-slate-400 text-sm",
+                                ),
+                                class_name="flex flex-col items-center justify-center py-16",
+                            ),
                         ),
                         class_name="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6",
                     ),
+                    
+                    # Alertas
                     rx.cond(
                         DashboardState.active_alerts > 0,
                         rx.el.div(
@@ -180,16 +212,16 @@ def dashboard_content() -> rx.Component:
                                     "Alertas Activas",
                                     class_name="text-lg font-bold text-slate-800",
                                 ),
-                                rx.el.a(
-                                    "Ver Todas",
-                                    href="/alerts",
-                                    class_name="text-sm text-blue-600 hover:underline",
+                                rx.el.span(
+                                    f"{DashboardState.active_alerts} pendientes",
+                                    class_name="text-sm text-slate-500",
                                 ),
                                 class_name="flex justify-between items-center mb-4",
                             ),
                             rx.el.div(
                                 rx.foreach(
-                                    DashboardState.active_alerts_list, alert_item
+                                    DashboardState.active_alerts_list, 
+                                    alert_item
                                 )
                             ),
                             class_name="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 border-l-4 border-l-red-500",
@@ -201,6 +233,10 @@ def dashboard_content() -> rx.Component:
             ),
             class_name="bg-slate-50 min-h-[calc(100vh-64px)]",
         ),
+        
+        # ✅ Cargar dashboard al montar
+        on_mount=DashboardState.load_dashboard_stats,
+        
         class_name=f"min-h-screen w-full {M3Styles.FONT_FAMILY}",
     )
 

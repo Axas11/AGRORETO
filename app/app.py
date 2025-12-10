@@ -295,9 +295,10 @@ app.add_page(
     parcel_detail_page,
     route="/parcels/[id]",
     title="Parcel Detail - Agrotech",
-    on_load=[AuthState.check_authentication,
-             AuthState.ensure_db_seeded,
-               SensorState.load_sensors],
+        on_load=[AuthState.check_authentication,
+                         AuthState.ensure_db_seeded,
+                             SensorState.load_sensors,
+                             ParcelState.load_assigned_techs],
 )
 app.add_page(
     sensor_detail_page,

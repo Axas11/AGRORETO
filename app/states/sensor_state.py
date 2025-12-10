@@ -6,8 +6,9 @@ from datetime import datetime
 import reflex as rx
 from sqlmodel import Session, select
 
-from app.models import Alert, Parcel, Sensor, SensorData
+from app.models import Alert, Parcel, ParcelTechnician, Sensor, SensorData
 from app.services.maiota_client import maiota_client
+from app.states.auth_state import AuthState
 from app.utils import engine
 
 
@@ -58,19 +59,51 @@ class SensorState(rx.State):
             return 0
 
     @rx.event
-    def load_sensors(self):
+    async def load_sensors(self):
+        """Carga sensores de la parcela actual"""
         self.sensors = []
         self.current_parcel = None
         pid = self.parcel_id
         if not pid:
             return
+        
+        # ✅ Obtener el estado de autenticación correctamente
+        auth_state = await self.get_state(AuthState)
+        user_role = auth_state.user_role
+        user_id = auth_state.user_id
+        
         with Session(engine) as session:
-            self.current_parcel = session.get(Parcel, pid)
+            # Verificar permisos: sólo farmer, owner o técnicos asignados pueden ver detalles
+            parcel_obj = session.get(Parcel, pid)
+            if not parcel_obj:
+                return
+
+            allowed = False
+            if user_role == "farmer":
+                allowed = True
+            elif parcel_obj.owner_id == user_id:
+                allowed = True
+            else:
+                # Comprobar asignación en ParcelTechnician
+                assigned = session.exec(
+                    select(ParcelTechnician).where(
+                        (ParcelTechnician.parcel_id == pid) & (ParcelTechnician.user_id == user_id)
+                    )
+                ).first()
+                if assigned:
+                    allowed = True
+
+            if not allowed:
+                # No autorizado para ver esta parcela
+                return
+
+            self.current_parcel = parcel_obj
             if self.current_parcel:
                 sensors_objs = session.exec(
                     select(Sensor).where(Sensor.parcel_id == pid)
                 ).all()
                 self.sensors = [s.model_dump() for s in sensors_objs]
+
 
     @rx.event
     def toggle_add_modal(self):

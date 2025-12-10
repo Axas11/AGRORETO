@@ -35,6 +35,13 @@ class Sensor(SQLModel, table=True):
     # Nuevo campo para MQTT
     mqtt_topic: str = Field(default="Awi7LJfyyn6LPjg/15046220")
 
+
+class ParcelTechnician(SQLModel, table=True):
+    """Tabla de asociación many-to-many entre Parcel y User (técnicos asignados)."""
+    id: int | None = Field(default=None, primary_key=True)
+    parcel_id: int = Field(foreign_key="parcel.id")
+    user_id: int = Field(foreign_key="user.id")
+
 class SensorData(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     sensor_id: int = Field(foreign_key="sensor.id")

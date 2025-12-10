@@ -1,9 +1,11 @@
 # app/pages/parcel_detail.py
 import reflex as rx
-from app.states.auth_state import AuthState
-from app.states.sensor_state import SensorState
+
 from app.components.navbar import navbar
 from app.components.styles import M3Styles
+from app.states.auth_state import AuthState
+from app.states.parcel_state import ParcelState
+from app.states.sensor_state import SensorState
 
 
 def sensor_card(sensor: dict) -> rx.Component:
@@ -221,6 +223,70 @@ def parcel_detail_page() -> rx.Component:
                     ),
                     class_name="flex justify-between items-start mb-8",
                 ),
+
+                # SECCIÓN: Asignación de técnicos
+                rx.cond(
+                    AuthState.is_farmer,
+                    rx.el.div(
+                        rx.el.h3("Técnicos asignados", class_name="text-lg font-semibold text-slate-800 mb-3"),
+                        
+                        # Lista de técnicos asignados
+                        rx.cond(
+                            ParcelState.assigned_technicians.length() > 0,
+                            rx.foreach(
+                                ParcelState.assigned_technicians,
+                                lambda t: rx.el.div(
+                                    rx.el.div(
+                                        rx.el.span(t["username"], class_name="font-medium text-slate-700"),
+                                        class_name="flex-1",
+                                    ),
+                                    rx.el.div(
+                                        rx.button(
+                                            "Quitar",
+                                            # ✅ CORREGIDO: Sin lambda
+                                            on_click=ParcelState.remove_technician(t["id"]),
+                                            class_name="text-sm text-red-600 hover:underline"
+                                        ),
+                                        class_name="ml-4",
+                                    ),
+                                    class_name="flex items-center justify-between p-3 border rounded mb-2",
+                                ),
+                            ),
+                            rx.el.p("No hay técnicos asignados.", class_name="text-sm text-slate-500 mb-3"),
+                        ),
+                        
+                        # Formulario para asignar técnico
+                        rx.el.div(
+                            rx.el.div(
+                                rx.el.select(
+                                    rx.el.option("Seleccionar técnico", value=""),
+                                    rx.foreach(
+                                        ParcelState.available_technicians,
+                                        lambda u: rx.el.option(
+                                            u["username"], 
+                                            value=u["id"].to(str)
+                                        ),
+                                    ),
+                                    value=ParcelState.selected_technician_id,
+                                    on_change=ParcelState.set_selected_technician_id,
+                                    class_name=M3Styles.INPUT_FIELD,
+                                ),
+                                class_name="mb-3",
+                            ),
+                            rx.el.div(
+                                rx.el.button(
+                                    "Asignar técnico",
+                                    on_click=ParcelState.assign_technician_from_select,
+                                    disabled=ParcelState.selected_technician_id == "",
+                                    class_name=f"{M3Styles.BUTTON_PRIMARY} py-2 px-4 disabled:opacity-50 disabled:cursor-not-allowed",
+                                ),
+                                class_name="flex justify-start",
+                            ),
+                            class_name="mb-6",
+                        ),
+                        class_name="mb-6",
+                    ),
+                ),
                 
                 # Grid de sensores
                 rx.cond(
@@ -249,6 +315,12 @@ def parcel_detail_page() -> rx.Component:
         
         # Modal
         add_sensor_modal(),
+        
+        # on_mount para cargar datos al entrar
+        on_mount=[
+            SensorState.load_sensors,
+            ParcelState.load_assigned_techs,
+        ],
         
         class_name=f"min-h-screen w-full {M3Styles.FONT_FAMILY}",
     )

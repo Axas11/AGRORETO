@@ -1,9 +1,10 @@
 import reflex as rx
-from app.states.auth_state import AuthState
-from app.states.sensor_history_state import SensorHistoryState
+
+from app.components.charts import history_chart
 from app.components.navbar import navbar
 from app.components.styles import M3Styles
-from app.components.charts import history_chart
+from app.states.auth_state import AuthState
+from app.states.sensor_history_state import SensorHistoryState
 
 
 def stat_box(label: str, value: str, unit: str) -> rx.Component:
