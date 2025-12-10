@@ -18,6 +18,7 @@ venv/
 .env
 
 *.db
+*.sqbproject
 
 # Configuraciones y archivos secretos
 .env

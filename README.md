@@ -2,6 +2,11 @@
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![Reflex](https://img.shields.io/badge/Reflex-0.6+-purple)
+```markdown
+# 🌱 AGRORETO - Sistema de Monitoreo de Sensores Agrícolas
+
+![Python](https://img.shields.io/badge/Python-3.10-blue)
+![Reflex](https://img.shields.io/badge/Reflex-0.6+-purple)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
 Sistema web de monitoreo en tiempo real para sensores agrícolas IoT basado en la plataforma **MAIoTA**. Permite gestionar parcelas, sensores y visualizar datos ambientales con alertas automáticas.
@@ -25,6 +30,7 @@ Sistema web de monitoreo en tiempo real para sensores agrícolas IoT basado en l
 ### Funcionalidades Principales
 
 - 🔐 **Autenticación de usuarios** con roles (Agricultor y Técnico/Visor)
+- 🆕 **Registro con aprobación administrativa**: los nuevos usuarios reciben el rol `registered` y deben ser aprobados por un administrador antes de obtener acceso completo.
 - 📊 **Dashboard en tiempo real** con métricas y gráficos interactivos
 - 🌾 **Gestión de parcelas** - Crear, editar y eliminar parcelas agrícolas
 - 📡 **Monitoreo de sensores** - Temperatura, humedad, CO₂, luminosidad, COV, NOx
@@ -87,33 +93,31 @@ Sistema web de monitoreo en tiempo real para sensores agrícolas IoT basado en l
 git clone https://github.com/Axas11/AGRORETO.git
 cd AGRORETO
 
-text
-
 ### 2. Crear entorno virtual
 
 python3 -m venv venv
 source venv/bin/activate # En Windows: venv\Scripts\activate
 
-text
-
 ### 3. Instalar dependencias
 
 pip install -r requirements.txt
 
-text
-
 ### 4. Inicializar base de datos
+
+Si usas Alembic:
 
 reflex db init
 reflex db migrate
 
-text
+Si no usas migraciones (entorno de desarrollo), puedes crear las tablas y datos de ejemplo ejecutando el script de seed:
+
+python3 -c "from app.utils import seed_database; seed_database()"
+
+Este comando ejecuta `SQLModel.metadata.create_all(engine)` internamente y crea tablas nuevas como `ParcelTechnician` si están definidas en `app/models.py`.
 
 ### 5. Ejecutar la aplicación
 
 reflex run
-
-text
 
 La aplicación estará disponible en:
 - **Frontend**: http://localhost:3000
@@ -132,8 +136,6 @@ El sistema crea automáticamente estos usuarios de prueba:
 | admin | admin123 | Agricultor (full access) |
 | tech | tech123 | Técnico (solo lectura) |
 
-**⚠️ IMPORTANTE**: Cambia estas credenciales en producción.
-
 ---
 
 ## 📖 Uso
@@ -141,6 +143,8 @@ El sistema crea automáticamente estos usuarios de prueba:
 ### 1. Iniciar Sesión
 
 Accede a http://localhost:3000 e inicia sesión con las credenciales por defecto.
+
+Si te registras como nuevo usuario, recibirás el rol `registered` y no tendrás acceso completo hasta que un administrador apruebe la cuenta. El administrador puede gestionar usuarios desde **Admin → Users**.
 
 ### 2. Crear una Parcela
 
@@ -168,6 +172,15 @@ Los datos comenzarán a recibirse automáticamente si el sensor está activo.
 - **Detalle de Sensor**: Gráfico histórico con filtros de fecha
 - **Alertas**: Listado de todas las alertas generadas
 
+### 5. Asignar Técnicos a Parcelas
+
+Los propietarios (agricultores) pueden asignar técnicos a una parcela desde la vista de detalle de la misma. Los técnicos asignados obtendrán visibilidad de la parcela y sus sensores.
+
+1. Accede al detalle de la parcela como propietario
+2. En la sección "Técnicos asignados" selecciona un técnico disponible
+3. Click en "Asignar técnico"
+4. Para remover un técnico, haz click en "Quitar" junto a su nombre
+
 ---
 
 ## 🔌 API REST
@@ -192,8 +205,6 @@ Content-Type: application/json
 "timestamp": "2025-11-25T10:00:00Z"
 }
 
-text
-
 #### Parcelas
 
 Listar parcelas
@@ -212,8 +223,6 @@ Content-Type: application/json
 "owner_id": 1
 }
 
-text
-
 #### Alertas
 
 Listar alertas no reconocidas
@@ -221,8 +230,6 @@ GET /api/alerts?acknowledged=false
 
 Reconocer alerta
 POST /api/alerts/{alert_id}/acknowledge
-
-text
 
 ### Ejemplos con curl
 
@@ -236,8 +243,6 @@ Crear nueva lectura
 curl -X POST http://localhost:8000/api/sensors/1/data
 -H "Content-Type: application/json"
 -d '{"value": 18.5}'
-
-text
 
 ---
 
@@ -275,8 +280,6 @@ AGRORETO/
 ├── rxconfig.py # Configuración de Reflex
 └── requirements.txt # Dependencias Python
 
-text
-
 ### Flujo de Datos MQTT
 
 [Sensor MAIoTA]
@@ -286,8 +289,6 @@ text
 [save_sensor_reading_direct()]
 ↓ SQLite
 [Database] → [States] → [UI Components]
-
-text
 
 ---
 
@@ -302,8 +303,6 @@ Variables de entorno recomendadas
 export DATABASE_URL=sqlite:///reflex.db
 export MQTT_BROKER=broker.emqx.io
 export MQTT_PORT=1883
-
-text
 
 ---
 
@@ -326,3 +325,4 @@ Este proyecto está bajo la Licencia MIT.
 ---
 
 **Desarrollado con ❤️ para la agricultura inteligente**
+```

@@ -249,29 +249,31 @@ class SensorState(rx.State):
                 
         except Exception as e:
             logging.exception(f"Error guardando lectura: {e}")
+    #Comentada por duplicado de mensaje
 
-    def _check_thresholds(self, sensor: Sensor, sensor_type: str, data: dict):
-        """Verifica umbrales y crea alertas si es necesario"""
-        value = data.get(sensor_type, 0.0)
+    # def _check_thresholds(self, sensor: Sensor, sensor_type: str, data: dict):
+    #     """Verifica umbrales y crea alertas si es necesario"""
+    #     value = data.get(sensor_type, 0.0)
         
-        alert_type = None
-        alert_message = None
+    #     alert_type = None
+    #     alert_message = None
         
-        if value < sensor.threshold_low:
-            alert_type = "low"
-            alert_message = (
-                f"⚠️ {sensor.id_code}: {sensor_type} bajo el mínimo. "
-                f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_low})"
-            )
-        elif value > sensor.threshold_high:
-            alert_type = "high"
-            alert_message = (
-                f"⚠️ {sensor.id_code}: {sensor_type} sobre el máximo. "
-                f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_high})"
-            )
+    #     if value < sensor.threshold_low:
+    #         alert_type = "low"
+    #         alert_message = (
+    #             f"⚠️ {sensor.id_code}: {sensor_type} bajo el mínimo. "
+    #             f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_low})"
+    #         )
+    #     elif value > sensor.threshold_high:
+    #         alert_type = "high"
+    #         alert_message = (
+    #             f"⚠️ {sensor.id_code}: {sensor_type} sobre el máximo. "
+    #             f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_high})"
+    #         )
         
-        if alert_type and alert_message:
-            self._create_alert(sensor.id, alert_type, alert_message)
+    #     if alert_type and alert_message:
+    #         self._create_alert(sensor.id, alert_type, alert_message)
+            
 
     def _create_alert(self, sensor_id: int, alert_type: str, message: str):
         """Crea una alerta en la base de datos"""
