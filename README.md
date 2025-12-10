@@ -255,30 +255,40 @@ AGRORETO/
 │ ├── api/
 │ │ └── routes.py # API REST endpoints
 │ ├── components/
+│ │ ├── charts.py # Componentes de gráficos
 │ │ ├── navbar.py # Barra de navegación
-│ │ ├── login_form.py # Formulario de login
 │ │ └── styles.py # Estilos reutilizables
 │ ├── models.py # Modelos de base de datos
 │ ├── pages/
+│ │ ├── admin_users.py # Gestión de usuarios (admin)
+│ │ ├── alerts.py # Gestión de alertas
 │ │ ├── dashboard.py # Dashboard principal
+│ │ ├── index.py # Página de inicio
+│ │ ├── info.py # Página de información
+│ │ ├── login_form.py # Formulario de login
+│ │ ├── parcel_detail.py # Detalle de parcela y sensores
 │ │ ├── parcels.py # Listado de parcelas
-│ │ ├── parcel_detail.py # Detalle y sensores
-│ │ ├── sensor_detail.py # Gráficos históricos
-│ │ └── alerts.py # Gestión de alertas
+│ │ ├── register_form.py # Formulario de registro
+│ │ └── sensor_detail.py # Gráficos históricos de sensores
 │ ├── services/
-│ │ └── maiota_client.py # Cliente MQTT
+│ │ ├── data_aggregator.py # Agregador de datos (medias cada 5 min)
+│ │ └── maiota_client.py # Cliente MQTT para sensores
 │ ├── states/
+│ │ ├── alert_state.py # Estado de alertas
 │ │ ├── auth_state.py # Estado de autenticación
 │ │ ├── dashboard_state.py # Estado del dashboard
 │ │ ├── parcel_state.py # Gestión de parcelas
-│ │ ├── sensor_state.py # Gestión de sensores
-│ │ └── alert_state.py # Gestión de alertas
+│ │ ├── sensor_history_state.py # Histórico de sensores
+│ │ └── sensor_state.py # Gestión de sensores
 │ ├── utils.py # Utilidades y conexión BD
 │ └── app.py # Configuración principal
+├── alembic/ # Migraciones de base de datos
 ├── assets/ # Imágenes y recursos
+├── clean_alerts.py # Script para limpiar alertas
 ├── reflex.db # Base de datos SQLite
 ├── rxconfig.py # Configuración de Reflex
-└── requirements.txt # Dependencias Python
+├── requirements.txt # Dependencias Python
+└── AGREGACION_DATOS.md # Documentación del sistema de agregación
 
 ### Flujo de Datos MQTT
 
