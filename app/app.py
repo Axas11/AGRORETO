@@ -1,13 +1,12 @@
 # app/app.py
-import json
 import logging
-from datetime import datetime
+import time
 
 import reflex as rx
 from sqlmodel import Session, select
 
 from app.api.routes import router as api_router
-from app.models import Alert, Sensor, SensorData
+from app.models import Sensor
 from app.pages.admin_users import AdminUserState, admin_users_page
 from app.pages.alerts import alerts_page
 from app.pages.dashboard import dashboard
@@ -20,6 +19,7 @@ from app.pages.register_form import register_form
 from app.pages.sensor_detail import sensor_detail_page
 # Importar MQTT y modelos
 from app.services.maiota_client import maiota_client
+from app.services.data_aggregator import data_aggregator
 from app.states.alert_state import AlertState
 from app.states.auth_state import AuthState
 from app.states.dashboard_state import DashboardState
@@ -34,75 +34,26 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
 def save_sensor_reading_direct(sensor_id: int, sensor_type: str, data: dict):
-    """Guarda lectura directamente en BD sin usar State"""
+    """Añade lectura al agregador (no guarda directamente en BD)"""
     try:
-        with Session(engine) as session:
-            # Extraer valor según tipo de sensor
-            value = data.get(sensor_type, 0.0)
-            
-            # Convertir datetime a string para JSON
-            data_for_json = data.copy()
-            if 'timestamp' in data_for_json and isinstance(data_for_json['timestamp'], datetime):
-                data_for_json['timestamp'] = data_for_json['timestamp'].isoformat()
-            
-            # Crear registro
-            reading = SensorData(
-                sensor_id=sensor_id,
-                timestamp=data.get('timestamp', datetime.now()),
-                value=float(value),
-                raw=data.get('raw_payload', json.dumps(data_for_json))
-            )
-            
-            session.add(reading)
-            session.commit()
-            
-            logger.info(f"💾 Lectura guardada: Sensor {sensor_id} ({sensor_type}) = {value:.2f}")
-            
-            # Verificar umbrales
-            check_thresholds_direct(session, sensor_id, sensor_type, value)
+        # En lugar de guardar directamente, añadir al buffer del agregador
+        data_aggregator.add_reading(sensor_id, sensor_type, data)
+        
+        # Log reducido para no saturar
+        logger.debug(f"📥 Lectura añadida al buffer: Sensor {sensor_id} ({sensor_type})")
             
     except Exception as e:
-        logger.exception(f"❌ Error guardando lectura: {e}")
+        logger.exception(f"❌ Error añadiendo lectura al agregador: {e}")
 
 
 def check_thresholds_direct(session: Session, sensor_id: int, sensor_type: str, value: float):
-    """Verifica umbrales y crea alertas si es necesario"""
-    try:
-        sensor = session.get(Sensor, sensor_id)
-        if not sensor:
-            return
-        
-        alert_type = None
-        alert_message = None
-        
-        if value < sensor.threshold_low:
-            alert_type = "low"
-            alert_message = (
-                f"⚠️ {sensor.id_code}: {sensor_type} bajo el mínimo. "
-                f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_low})"
-            )
-        elif value > sensor.threshold_high:
-            alert_type = "high"
-            alert_message = (
-                f"⚠️ {sensor.id_code}: {sensor_type} sobre el máximo. "
-                f"Valor: {value:.2f} {sensor.unit} (límite: {sensor.threshold_high})"
-            )
-        
-        if alert_type and alert_message:
-            alert = Alert(
-                sensor_id=sensor_id,
-                timestamp=datetime.now(),
-                type=alert_type,
-                message=alert_message,
-                acknowledged=False
-            )
-            session.add(alert)
-            session.commit()
-            logger.warning(f"🚨 ALERTA: {alert_message}")
-            
-    except Exception as e:
-        logger.exception(f"❌ Error verificando umbrales: {e}")
+    """
+    DEPRECADA: Los umbrales ahora se verifican en el agregador con las medias.
+    Se mantiene por compatibilidad pero no se usa.
+    """
+    pass
 
 
 def load_existing_sensors():
@@ -110,7 +61,7 @@ def load_existing_sensors():
     try:
         with Session(engine) as session:
             active_sensors = session.exec(
-                select(Sensor).where(Sensor.active == True)
+                select(Sensor).where(Sensor.active.is_(True))
             ).all()
             
             # Agrupar sensores por topic
@@ -217,9 +168,11 @@ logger.info("🔌 Conectando al cliente MQTT MAIoTA...")
 # Iniciar cliente MQTT
 maiota_client.start()
 
-# Esperar conexión
-import time
+# Iniciar agregador de datos
+logger.info("📊 Iniciando agregador de datos (media cada 5 minutos)...")
+data_aggregator.start()
 
+# Esperar conexión
 time.sleep(2)
 
 # Cargar sensores existentes
