@@ -5,3 +5,7 @@ python -m reflex run
 python -m reflex db init
 python -m reflex db makemigrations
 python -m reflex db migrate
+
+Test:
+pip install -r requirements-test.txt
+pytest -v
