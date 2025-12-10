@@ -302,6 +302,37 @@ AGRORETO/
 
 ---
 
+## 🧪 Tests
+
+El proyecto incluye tests unitarios para la lógica backend usando pytest.
+
+### Ejecutar Tests
+
+bash
+# Instalar dependencias de testing
+pip install -r requirements-test.txt
+
+# Ejecutar todos los tests
+pytest
+
+# Ejecutar con cobertura
+pytest --cov=app --cov-report=html
+
+# Ver reporte de cobertura
+open htmlcov/index.html
+
+
+### Tests Incluidos
+
+- ✅ **test_models.py**: Tests de modelos de datos (User, Parcel, Sensor, etc.)
+- ✅ **test_utils.py**: Tests de funciones de utilidad (hash de contraseñas, etc.)
+- ✅ **test_data_aggregator.py**: Tests del agregador de datos (buffer, medias, thread safety)
+- ✅ **test_maiota_client.py**: Tests del cliente MQTT (parseo, callbacks, conexión)
+
+Para más información, consulta [tests/README.md](tests/README.md)
+
+---
+
 ## 🚢 Despliegue
 
 ### Producción
