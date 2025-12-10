@@ -1,8 +1,9 @@
 import reflex as rx
-from app.states.auth_state import AuthState
-from app.states.alert_state import AlertState
+
 from app.components.navbar import navbar
 from app.components.styles import M3Styles
+from app.states.alert_state import AlertState
+from app.states.auth_state import AuthState
 
 
 def alert_row(alert: dict) -> rx.Component:
@@ -134,5 +135,8 @@ def alerts_page() -> rx.Component:
             ),
             class_name="bg-slate-50 min-h-[calc(100vh-64px)]",
         ),
+
+        on_mount=AlertState.load_alerts,
+
         class_name=f"min-h-screen w-full {M3Styles.FONT_FAMILY}",
     )
