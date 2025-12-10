@@ -29,7 +29,7 @@ class DashboardState(rx.State):
     @rx.event
     async def load_dashboard_stats(self):
         """Carga estadísticas del dashboard según permisos del usuario"""
-        # ✅ Obtener info del usuario
+        # Obtener info del usuario
         auth_state = await self.get_state(AuthState)
         user_role = auth_state.user_role
         user_id = auth_state.user_id
@@ -40,7 +40,7 @@ class DashboardState(rx.State):
             return
 
         with Session(engine) as session:
-            # ✅ Determinar parcelas accesibles
+            # Determinar parcelas accesibles
             if user_role == "farmer":
                 # Farmers ven todas las parcelas
                 accessible_parcels = session.exec(select(Parcel)).all()
@@ -74,10 +74,10 @@ class DashboardState(rx.State):
                 self.active_alerts_list = []
                 return
             
-            # ✅ Contar solo parcelas y sensores accesibles
+            # Contar solo parcelas y sensores accesibles
             self.total_parcels = len(parcel_ids)
             
-            # ✅ Obtener sensores de parcelas accesibles
+            # Obtener sensores de parcelas accesibles
             sensors = session.exec(
                 select(Sensor).where(Sensor.parcel_id.in_(parcel_ids))
             ).all()
@@ -94,37 +94,16 @@ class DashboardState(rx.State):
                 if latest:
                     val = latest.value
                     value_display = f"{val:.1f}"
-                    violation_type = None
-                    msg = ""
                     
+                    # ✅ SOLO determinar el estado visual (sin crear alertas)
                     if val < sensor.threshold_low:
                         status = "red"
-                        violation_type = "LOW"
-                        msg = f"Value {val:.1f} {sensor.unit} is below minimum threshold {sensor.threshold_low} {sensor.unit}"
                     elif val > sensor.threshold_high:
                         status = "red"
-                        violation_type = "HIGH"
-                        msg = f"Value {val:.1f} {sensor.unit} is above maximum threshold {sensor.threshold_high} {sensor.unit}"
                     else:
                         status = "green"
                     
-                    if violation_type:
-                        existing = session.exec(
-                            select(Alert)
-                            .where(Alert.sensor_id == sensor.id)
-                            .where(Alert.type == violation_type)
-                            .where(Alert.acknowledged == False)
-                        ).first()
-                        if not existing:
-                            new_alert = Alert(
-                                sensor_id=sensor.id,
-                                type=violation_type,
-                                message=msg,
-                                timestamp=latest.timestamp,
-                            )
-                            session.add(new_alert)
-                            session.commit()
-                    
+                    # Calcular tiempo transcurrido
                     diff = datetime.now() - latest.timestamp
                     if diff.total_seconds() < 60:
                         last_update = "Justo ahora"
@@ -146,7 +125,7 @@ class DashboardState(rx.State):
             
             self.sensor_statuses = status_list
             
-            # ✅ Alertas solo de sensores accesibles
+            # Alertas solo de sensores accesibles
             sensor_ids = [s.id for s in sensors]
             
             if sensor_ids:

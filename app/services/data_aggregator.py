@@ -151,18 +151,18 @@ class SensorDataAggregator:
             alert_message = None
             
             if value < sensor.threshold_low:
-                alert_type = "low"
+                alert_type = "LOW"
                 alert_message = (
                     f"⚠️ {sensor.id_code}: {sensor_type} bajo el mínimo. "
                     f"Media: {value:.2f} {sensor.unit} (límite: {sensor.threshold_low})"
                 )
             elif value > sensor.threshold_high:
-                alert_type = "high"
+                alert_type = "HIGH"
                 alert_message = (
                     f"⚠️ {sensor.id_code}: {sensor_type} sobre el máximo. "
                     f"Media: {value:.2f} {sensor.unit} (límite: {sensor.threshold_high})"
                 )
-            
+
             if alert_type and alert_message:
                 alert = Alert(
                     sensor_id=sensor_id,
@@ -228,4 +228,4 @@ class SensorDataAggregator:
 
 
 # Instancia global del agregador (5 minutos por defecto)
-data_aggregator = SensorDataAggregator(interval_minutes=5)
+data_aggregator = SensorDataAggregator(interval_minutes=1)
