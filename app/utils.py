@@ -9,15 +9,17 @@ engine = create_engine(DATABASE_URL)
 
 
 def verify_password(plain_password, hashed_password):
+    """Verifica si una contraseña en texto plano coincide con su hash"""
     return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password):
+    """Genera el hash bcrypt de una contraseña"""
     return pwd_context.hash(password)
 
 
 def seed_database():
-    """Initialize the database with sample data if it's empty."""
+    """Inicializa la base de datos con datos de ejemplo si está vacía (usuarios, parcelas y sensores)"""
     SQLModel.metadata.create_all(engine)
     with Session(engine) as session:
         result = session.exec(select(User)).first()

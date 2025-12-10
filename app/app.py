@@ -36,7 +36,15 @@ logger = logging.getLogger(__name__)
 
 
 def save_sensor_reading_direct(sensor_id: int, sensor_type: str, data: dict):
-    """Añade lectura al agregador (no guarda directamente en BD)"""
+    """
+    Añade una lectura de sensor al agregador para calcular medias cada 5 minutos.
+    No guarda directamente en la base de datos, acumula en memoria.
+    
+    Args:
+        sensor_id: ID del sensor en la base de datos
+        sensor_type: Tipo de dato (temperatura, humedad_ambiente, etc.)
+        data: Diccionario con los datos del sensor recibidos por MQTT
+    """
     try:
         # En lugar de guardar directamente, añadir al buffer del agregador
         data_aggregator.add_reading(sensor_id, sensor_type, data)
@@ -50,14 +58,19 @@ def save_sensor_reading_direct(sensor_id: int, sensor_type: str, data: dict):
 
 def check_thresholds_direct(session: Session, sensor_id: int, sensor_type: str, value: float):
     """
-    DEPRECADA: Los umbrales ahora se verifican en el agregador con las medias.
+    FUNCIÓN DEPRECADA: Los umbrales ahora se verifican en el agregador con las medias.
+    La verificación de umbrales se realiza en data_aggregator._check_thresholds().
     Se mantiene por compatibilidad pero no se usa.
     """
     pass
 
 
 def load_existing_sensors():
-    """Carga sensores existentes y los agrupa por topic"""
+    """
+    Carga todos los sensores activos de la BD y los registra en el cliente MQTT.
+    Agrupa sensores por topic MQTT para optimizar las suscripciones.
+    Cada topic puede tener múltiples sensores que reciben los mismos datos.
+    """
     try:
         with Session(engine) as session:
             active_sensors = session.exec(
@@ -91,9 +104,23 @@ def load_existing_sensors():
             for topic, sensors_list in sensors_by_topic.items():
                 
                 def make_callback_for_topic(topic_sensors):
+                    """
+                    Crea una función callback para un topic MQTT específico.
+                    El callback procesa datos para todos los sensores asociados al topic.
+                    
+                    Args:
+                        topic_sensors: Lista de sensores que comparten el mismo topic MQTT
+                    
+                    Returns:
+                        Función callback que procesa mensajes MQTT
+                    """
                     def on_data(data: dict):
                         """
-                        Callback que guarda datos en TODOS los sensores del topic
+                        Callback ejecutado cuando llegan datos MQTT del topic.
+                        Distribuye los datos a todos los sensores del topic.
+                        
+                        Args:
+                            data: Diccionario con los datos parseados del mensaje MQTT
                         """
                         for sensor_info in topic_sensors:
                             s_id = sensor_info['id']
@@ -132,21 +159,27 @@ def load_existing_sensors():
 
 #definir registro
 def register_page() -> rx.Component:
+    """Renderiza la página de registro de nuevos usuarios"""
     return register_form()
 
 def login_page() -> rx.Component:
+    """Renderiza la página de inicio de sesión"""
     return login_form()
 
 def info_page() -> rx.components:
+    """Renderiza la página de información sobre el sistema"""
     return info()
 
 def dashboard_page() -> rx.Component:
+    """Renderiza el dashboard principal con estadísticas y gráficos"""
     return dashboard()
 
 def index_page() -> rx.Component:
+    """Renderiza la página de inicio/landing page"""
     return index()
 
 def admin_page() -> rx.Component:
+    """Renderiza la página de administración de usuarios (solo admin)"""
     return admin_users_page()
 
 def api_routes(api_app):

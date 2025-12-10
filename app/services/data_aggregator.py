@@ -23,8 +23,10 @@ class SensorDataAggregator:
     
     def __init__(self, interval_minutes: int = 5):
         """
+        Inicializa el agregador de datos de sensores.
+        
         Args:
-            interval_minutes: Intervalo en minutos para calcular y guardar la media
+            interval_minutes: Intervalo en minutos para calcular y guardar la media (por defecto 5)
         """
         self.interval_seconds = interval_minutes * 60
         self.buffer: Dict[int, Dict[str, List[float]]] = defaultdict(lambda: defaultdict(list))
@@ -37,12 +39,14 @@ class SensorDataAggregator:
     
     def add_reading(self, sensor_id: int, sensor_type: str, data: dict):
         """
-        Añade una lectura al buffer para calcular la media posteriormente
+        Añade una lectura de sensor al buffer en memoria para agregar posteriormente.
+        Las lecturas se acumulan hasta que se ejecuta el cálculo de medias.
+        Thread-safe mediante uso de lock.
         
         Args:
-            sensor_id: ID del sensor
-            sensor_type: Tipo de dato (temperatura, humedad_ambiente, etc.)
-            data: Diccionario con todos los datos del sensor
+            sensor_id: ID del sensor en la base de datos
+            sensor_type: Tipo de dato (temperatura, humedad_ambiente, iluminacion, etc.)
+            data: Diccionario con todos los datos recibidos del sensor
         """
         with self.lock:
             # Obtener el valor específico del sensor
@@ -61,8 +65,11 @@ class SensorDataAggregator:
     
     def _calculate_and_save_averages(self):
         """
-        Calcula la media aritmética de todas las lecturas acumuladas 
-        y las guarda en la base de datos
+        Calcula la media aritmética de todas las lecturas acumuladas en el buffer
+        y las guarda en la base de datos como un único registro por sensor.
+        
+        También guarda metadatos (min, max, número de muestras) en el campo 'raw'.
+        Verifica umbrales después de guardar cada media.
         """
         with self.lock:
             if not self.buffer:
@@ -172,7 +179,10 @@ class SensorDataAggregator:
             logger.exception(f"❌ Error verificando umbrales: {e}")
     
     def _aggregation_loop(self):
-        """Loop que ejecuta el guardado de medias cada intervalo configurado"""
+        """
+        Loop principal que ejecuta el cálculo y guardado de medias periódicamente.
+        Se ejecuta en un thread separado cada interval_seconds.
+        """
         logger.info(f"🔄 Loop de agregación iniciado (cada {self.interval_seconds}s)")
         
         while self.running:
@@ -183,7 +193,10 @@ class SensorDataAggregator:
                 self._calculate_and_save_averages()
     
     def start(self):
-        """Inicia el thread de agregación"""
+        """
+        Inicia el thread de agregación en background.
+        El thread ejecuta el cálculo de medias cada interval_minutes.
+        """
         if self.running:
             logger.warning("⚠️ El agregador ya está en ejecución")
             return
@@ -198,7 +211,10 @@ class SensorDataAggregator:
         logger.info("✅ Agregador de datos iniciado en background")
     
     def stop(self):
-        """Detiene el thread de agregación y guarda datos pendientes"""
+        """
+        Detiene el thread de agregación de forma limpia.
+        Guarda todos los datos pendientes en el buffer antes de terminar.
+        """
         logger.info("🛑 Deteniendo agregador de datos...")
         self.running = False
         

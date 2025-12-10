@@ -16,6 +16,10 @@ class MAIoTAMultiSensorClient:
     """Cliente MQTT para gestionar múltiples sensores MAIoTA del Reto Agrotech"""
     
     def __init__(self):
+        """
+        Inicializa el cliente MQTT para sensores MAIoTA.
+        Crea un client_id único y configura los parámetros de conexión.
+        """
         # ✅ Client ID único usando UUID
         unique_id = str(uuid.uuid4())[:8]
         self.client_id = f"Equipo3_{unique_id}"
@@ -35,7 +39,10 @@ class MAIoTAMultiSensorClient:
         self._init_client()
     
     def _init_client(self):
-        """Inicializa el cliente MQTT con opciones mejoradas"""
+        """
+        Inicializa el cliente MQTT con configuración optimizada.
+        Configura callbacks y reconexion automática.
+        """
         self.client = mqtt.Client(
             client_id=self.client_id,
             clean_session=True,  # ✅ Limpiar sesión anterior
@@ -53,7 +60,16 @@ class MAIoTAMultiSensorClient:
         logger.info(f"🆔 Cliente MQTT inicializado: {self.client_id}")
     
     def _on_connect(self, client, userdata, flags, rc):
-        """Callback cuando se conecta al broker"""
+        """
+        Callback ejecutado cuando se conecta exitosamente al broker MQTT.
+        Re-suscribe automáticamente a todos los topics registrados.
+        
+        Args:
+            client: Instancia del cliente MQTT
+            userdata: Datos de usuario (no usado)
+            flags: Flags de conexión
+            rc: Código de resultado (0 = éxito)
+        """
         if rc == 0:
             logger.info("✅ Conectado al broker MAIoTA (EMQX)")
             self.is_connected = True
@@ -76,7 +92,15 @@ class MAIoTAMultiSensorClient:
             self.is_connected = False
     
     def _on_disconnect(self, client, userdata, rc):
-        """Callback cuando se desconecta del broker"""
+        """
+        Callback ejecutado cuando se desconecta del broker MQTT.
+        Intenta reconectar automáticamente si fue desconexión inesperada.
+        
+        Args:
+            client: Instancia del cliente MQTT
+            userdata: Datos de usuario (no usado)
+            rc: Código de resultado (0 = desconexión limpia)
+        """
         self.is_connected = False
         
         if rc != 0:
@@ -91,7 +115,15 @@ class MAIoTAMultiSensorClient:
             logger.info("👋 Desconectado del broker MAIoTA")
     
     def _on_message(self, client, userdata, msg):
-        """Procesa mensajes MQTT del sensor"""
+        """
+        Procesa mensajes MQTT recibidos de los sensores MAIoTA.
+        Parsea el payload y ejecuta el callback correspondiente al topic.
+        
+        Args:
+            client: Instancia del cliente MQTT
+            userdata: Datos de usuario (no usado)
+            msg: Mensaje MQTT con topic y payload
+        """
         topic = msg.topic
         payload = str(msg.payload.decode("utf-8"))
         
@@ -118,16 +150,24 @@ class MAIoTAMultiSensorClient:
     
     def _parse_maiota_payload(self, payload: str) -> dict:
         """
-        Parsea el formato MAIoTA:
-        CIoTA-D1=2603&D2=5411&D3=2542&D4=43&D5=580&D6=103&D7=1&
+        Parsea el formato de datos MAIoTA y convierte a diccionario.
         
-        D1 = Temperatura (dividir entre 100)
-        D2 = Humedad Ambiente (dividir entre 100)
-        D3 = Humedad Suelo (dividir entre 100)
-        D4 = Iluminación (dividir entre 10)
-        D5 = CO2 (directo)
-        D6 = COV (directo)
-        D7 = NOx (directo)
+        Formato esperado: CIoTA-D1=2603&D2=5411&D3=2542&D4=43&D5=580&D6=103&D7=1&
+        
+        Mapeo de datos:
+        - D1 = Temperatura (°C, dividir entre 100)
+        - D2 = Humedad Ambiente (%, dividir entre 100)
+        - D3 = Humedad Suelo (%, dividir entre 100)
+        - D4 = Iluminación (Lux, dividir entre 10)
+        - D5 = CO2 (ppm, valor directo)
+        - D6 = COV (Index, valor directo)
+        - D7 = NOx (Index, valor directo)
+        
+        Args:
+            payload: String con el mensaje MQTT en formato MAIoTA
+        
+        Returns:
+            Diccionario con los datos parseados o None si el formato es inválido
         """
         if not payload.startswith("CIoTA-"):
             logger.warning(f"⚠️ Payload no reconocido: {payload}")
@@ -157,7 +197,16 @@ class MAIoTAMultiSensorClient:
     
     def add_sensor(self, sensor_id: int, sensor_code: str, sensor_type: str, 
                    topic: str, callback: Callable):
-        """Registra un nuevo sensor en el cliente MQTT"""
+        """
+        Registra un nuevo sensor en el cliente MQTT y se suscribe a su topic.
+        
+        Args:
+            sensor_id: ID del sensor en la base de datos
+            sensor_code: Código identificador del sensor (ej: M-TEMP-01)
+            sensor_type: Tipo de sensor (temperatura, humedad, etc.)
+            topic: Topic MQTT del cual recibir datos
+            callback: Función a ejecutar cuando lleguen datos del sensor
+        """
         self.active_sensors[topic] = {
             'id': sensor_id,
             'code': sensor_code,
@@ -172,7 +221,12 @@ class MAIoTAMultiSensorClient:
             logger.warning(f"⏳ Sensor {sensor_code} pendiente de conexión")
     
     def remove_sensor(self, topic: str):
-        """Elimina un sensor del monitoreo"""
+        """
+        Elimina un sensor del monitoreo y cancela la suscripción al topic.
+        
+        Args:
+            topic: Topic MQTT del sensor a eliminar
+        """
         if topic in self.topic_callbacks:
             sensor_info = self.active_sensors.get(topic, {})
             del self.topic_callbacks[topic]
@@ -183,7 +237,10 @@ class MAIoTAMultiSensorClient:
                 logger.info(f"✅ Sensor {sensor_info.get('code')} desvinculado del topic {topic}")
     
     def start(self):
-        """Inicia la conexión MQTT en background"""
+        """
+        Inicia la conexión MQTT en un thread de background.
+        El cliente se ejecuta de forma asíncrona sin bloquear la aplicación.
+        """
         try:
             logger.info(f"🔌 Conectando a {self.broker}:{self.port}...")
             logger.info(f"🆔 Client ID: {self.client_id}")
@@ -208,7 +265,10 @@ class MAIoTAMultiSensorClient:
             logger.exception(f"❌ Error al iniciar cliente MQTT: {e}")
     
     def stop(self):
-        """Detiene el cliente MQTT"""
+        """
+        Detiene el cliente MQTT de forma limpia.
+        Cierra la conexión y termina el loop del cliente.
+        """
         logger.info("🛑 Deteniendo cliente MAIoTA...")
         self.client.loop_stop()
         self.client.disconnect()
